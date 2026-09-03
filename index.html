@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNC Life Health Intake Form</title>
+  <style>
+    #sync-intake-app {
+      --midnight: #0f4f55;
+      --mint: #76c7a0;
+      --white: #ffffff;
+      --lemon: #f2eb9e;
+      --charcoal: #3a4648;
+      --ink: #243638;
+      --muted: #667679;
+      --mist: #f3f8f6;
+      --line: #d9e5e1;
+      --danger: #9f2f2f;
+      --danger-bg: #fff0ee;
+      --success-bg: #e8f7ef;
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      background: linear-gradient(145deg, #f4faf7 0%, #ffffff 48%, #eef7f3 100%);
+      font-family: Inter, "Avenir Next", Avenir, Montserrat, Arial, sans-serif;
+      line-height: 1.55;
+    }
+    #sync-intake-app * { box-sizing: border-box; }
+    .sync-bg { position: absolute; border-radius: 999px; filter: blur(1px); pointer-events: none; }
+    .sync-bg-one { width: 420px; height: 420px; right: -210px; top: 90px; background: rgba(118,199,160,.2); }
+    .sync-bg-two { width: 280px; height: 280px; left: -170px; bottom: 8%; background: rgba(242,235,158,.24); }
+    .sync-header {
+      position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center;
+      max-width: 1120px; margin: 0 auto; padding: 28px 30px 18px;
+    }
+    .sync-brand img { max-width: 190px; max-height: 58px; display: block; }
+    #sync-logo-fallback { color: var(--midnight); font-size: 25px; letter-spacing: .17em; }
+    #sync-logo-fallback strong { font-weight: 800; }
+    .sync-header-meta { display: flex; gap: 18px; color: var(--muted); font-size: 13px; }
+    .sync-header-meta span:first-child { color: var(--midnight); font-weight: 800; }
+    .sync-shell {
+      position: relative; z-index: 1; width: min(1040px, calc(100% - 32px)); margin: 0 auto 40px;
+      background: rgba(255,255,255,.96); border: 1px solid rgba(15,79,85,.09); border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(15,79,85,.12); overflow: hidden;
+    }
+    .sync-progress { height: 7px; background: #e5efeb; }
+    #sync-progress-bar { height: 100%; width: 8%; background: linear-gradient(90deg, var(--midnight), var(--mint)); transition: width .3s ease; }
+    #sync-intake-form { padding: 48px clamp(24px, 6vw, 72px) 34px; }
+    .sync-step { display: none; animation: syncFade .28s ease; }
+    .sync-step.is-active { display: block; }
+    @keyframes syncFade { from { opacity: .35; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .sync-hero { padding: 25px 0 10px; max-width: 820px; }
+    h1, h2, h3 { color: var(--midnight); line-height: 1.13; margin: 0 0 14px; letter-spacing: -.025em; }
+    h1 { font-size: clamp(42px, 7vw, 72px); max-width: 760px; }
+    h2 { font-size: clamp(32px, 5vw, 50px); max-width: 760px; }
+    h3 { font-size: 21px; }
+    p { margin: 0 0 18px; }
+    .sync-lead { max-width: 780px; font-size: 19px; color: #526568; }
+    .sync-eyebrow { color: var(--midnight); font-size: 12px; font-weight: 900; letter-spacing: .18em; margin-bottom: 14px; }
+    .sync-section-heading { margin-bottom: 34px; }
+    .sync-section-heading > p:last-child { color: var(--muted); max-width: 720px; }
+    .sync-grid { display: grid; gap: 18px; margin-bottom: 20px; }
+    .sync-grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .sync-grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .sync-grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    label, legend { color: var(--charcoal); font-size: 14px; font-weight: 750; }
+    label { display: block; margin-bottom: 20px; }
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+      width: 100%; margin-top: 7px; padding: 13px 14px; color: var(--ink); background: var(--white);
+      border: 1.5px solid #cbdad5; border-radius: 10px; outline: none; font: inherit; font-weight: 500;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    textarea { resize: vertical; min-height: 78px; }
+    input:focus, select:focus, textarea:focus { border-color: var(--midnight) !important; box-shadow: 0 0 0 4px rgba(118,199,160,.22); }
+    input[readonly] { background: #f2f6f5 !important; color: var(--muted); }
+    fieldset { min-width: 0; border: 0; padding: 0; margin: 0 0 26px; }
+    legend { margin-bottom: 12px; }
+    .sync-choice-row, .sync-choice-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .sync-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .sync-choice, .sync-check {
+      display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 11px 14px;
+      border: 1px solid var(--line); border-radius: 10px; background: var(--white); cursor: pointer;
+      font-weight: 650; transition: border-color .15s, background .15s, transform .15s;
+    }
+    .sync-choice:hover, .sync-check:hover { border-color: var(--mint); background: #f7fcf9; }
+    .sync-choice:has(input:checked), .sync-check:has(input:checked) { border-color: var(--midnight); background: #ecf8f2; }
+    .sync-choice input, .sync-check input { margin: 3px 0 0; accent-color: var(--midnight); flex: 0 0 auto; }
+    .sync-inline-check { margin-bottom: 24px; }
+    .sync-stack { display: grid; gap: 9px; }
+    .sync-subcard, .sync-consent-card {
+      margin: 0 0 28px; padding: 24px; background: var(--mist); border: 1px solid var(--line); border-radius: 16px;
+    }
+    .sync-note {
+      display: flex; gap: 14px; margin: 28px 0; padding: 19px; background: #f7f6df; border: 1px solid #e8de83; border-radius: 14px;
+    }
+    .sync-note p { color: #5c635e; margin: 2px 0 0; }
+    .sync-note-icon {
+      display: grid; place-items: center; flex: 0 0 26px; width: 26px; height: 26px; color: white;
+      background: var(--midnight); border-radius: 50%; font-weight: 900;
+    }
+    .sync-check-list { display: grid; gap: 9px; list-style: none; padding: 0; margin: 28px 0; }
+    .sync-check-list li::before { content: "✓"; color: var(--midnight); font-weight: 900; margin-right: 10px; }
+    .sync-divider { height: 1px; margin: 32px 0; background: var(--line); }
+    .sync-optional { color: var(--muted); font-weight: 500; }
+    .sync-condition-group { margin-bottom: 14px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .sync-condition-group summary { cursor: pointer; padding: 17px 20px; color: var(--midnight); background: #f7fbf9; font-weight: 850; }
+    .sync-condition-list { padding: 16px 20px 8px; }
+    .sync-condition-item { padding: 10px 0; border-bottom: 1px solid #e8efed; }
+    .sync-condition-item:last-child { border-bottom: 0; }
+    .sync-condition-detail { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 10px; padding: 10px 0 5px 34px; }
+    .sync-condition-detail[hidden] { display: none; }
+    .sync-repeat-row { position: relative; padding: 20px; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fbfdfc; }
+    .sync-add, .sync-remove {
+      border: 0; background: transparent; color: var(--midnight); font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .05em; cursor: pointer;
+    }
+    .sync-add { margin: 0 0 26px; padding: 8px 0; }
+    .sync-remove { color: #8a4a4a; padding: 5px 0; }
+    .sync-actions { display: flex; align-items: center; gap: 11px; margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--line); }
+    .sync-btn {
+      min-height: 48px; padding: 12px 24px; border: 1.5px solid var(--midnight); border-radius: 10px;
+      font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .1em; cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s;
+    }
+    .sync-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(15,79,85,.14); }
+    .sync-btn-primary { margin-left: auto; color: white; background: var(--midnight); }
+    .sync-btn-outline { color: var(--midnight); background: white; }
+    .sync-btn-ghost { color: var(--midnight); background: transparent; border-color: transparent; }
+    .sync-status { display: none; margin: 20px clamp(24px,6vw,72px) 0; padding: 12px 15px; border-radius: 10px; }
+    .sync-status.is-visible { display: block; background: #fff4da; color: #72551a; }
+    .sync-alert { padding: 18px; border-radius: 12px; margin-bottom: 24px; }
+    .sync-alert-danger { margin: 20px clamp(24px,6vw,72px) 0; color: var(--danger); background: var(--danger-bg); border: 1px solid #e6aaa4; }
+    .sync-alert-success { color: #195f43; background: var(--success-bg); border: 1px solid #9fd0b8; }
+    .sync-review { display: grid; gap: 12px; margin-bottom: 28px; }
+    .sync-review-section { padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; }
+    .sync-review-section h3 { font-size: 17px; }
+    .sync-review-section dl { display: grid; grid-template-columns: 190px 1fr; gap: 7px 16px; margin: 0; }
+    .sync-review-section dt { color: var(--muted); font-size: 13px; }
+    .sync-review-section dd { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
+    .sync-footer {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; padding: 18px 30px;
+      color: #68777a; background: #f5f9f7; border-top: 1px solid var(--line); font-size: 12px;
+    }
+    .sync-footer a { color: var(--midnight); text-decoration: none; font-weight: 750; }
+    [hidden] { display: none !important; }
+    .sync-invalid { border-color: #ba3c3c !important; box-shadow: 0 0 0 3px rgba(186,60,60,.1) !important; }
+    @media (max-width: 800px) {
+      .sync-grid-3, .sync-grid-4, .sync-choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .sync-header-meta span:last-child { display: none; }
+      .sync-condition-detail { grid-template-columns: 1fr; padding-left: 0; }
+    }
+    @media (max-width: 560px) {
+      .sync-header { padding: 20px 18px 14px; }
+      .sync-shell { width: calc(100% - 16px); border-radius: 16px; }
+      #sync-intake-form { padding: 32px 18px 24px; }
+      .sync-grid-2, .sync-grid-3, .sync-grid-4, .sync-choice-grid { grid-template-columns: 1fr; }
+      .sync-choice-row { display: grid; grid-template-columns: 1fr 1fr; }
+      .sync-choice { width: 100%; }
+      .sync-actions { flex-wrap: wrap; }
+      .sync-btn { flex: 1 1 auto; }
+      .sync-btn-primary { margin-left: 0; }
+      .sync-btn-ghost { order: 3; flex-basis: 100%; }
+      .sync-review-section dl { grid-template-columns: 1fr; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="sync-intake-app">
+  <div class="sync-bg sync-bg-one" aria-hidden="true"></div>
+  <div class="sync-bg sync-bg-two" aria-hidden="true"></div>
+
+  <header class="sync-header">
+    <div class="sync-brand" aria-label="SYNC Life">
+      <img id="sync-logo" alt="SYNC Life" hidden>
+      <span id="sync-logo-fallback"><strong>SYNC</strong> LIFE</span>
+    </div>
+    <div class="sync-header-meta">
+      <span id="sync-step-label">Welcome</span>
+      <span id="sync-estimate">About 15–20 minutes</span>
+    </div>
+  </header>
+
+  <main class="sync-shell">
+    <div class="sync-progress" aria-label="Form progress">
+      <div id="sync-progress-bar"></div>
+    </div>
+
+    <div id="sync-status" class="sync-status" role="status" aria-live="polite"></div>
+    <div id="sync-emergency" class="sync-alert sync-alert-danger" role="alert" hidden>
+      <strong>This form is not monitored for emergencies.</strong>
+      Call 911 or seek emergency care now. Do not wait for a response from SYNC Life.
+    </div>
+
+    <form id="sync-intake-form" novalidate>
+      <input type="hidden" name="form_name" value="SYNC Life Health Intake Form">
+      <input type="hidden" name="form_version" value="2026.07">
+      <input type="hidden" name="submitted_at" id="submitted_at">
+
+      <section class="sync-step is-active" data-title="Welcome">
+        <div class="sync-hero">
+          <p class="sync-eyebrow">PERSONALIZED HEALTH</p>
+          <h1>Your SYNC Life health story</h1>
+          <p class="sync-lead">Your health is more than a list of symptoms. Tell us about your history, lifestyle, concerns and goals so our clinical team can prepare a personalized approach to your care.</p>
+          <div class="sync-note">
+            <span class="sync-note-icon" aria-hidden="true">i</span>
+            <div>
+              <strong>Before you begin</strong>
+              <p>Complete the form as thoroughly as possible. Choose “I’m not sure” when needed. Discuss medical decisions with your primary care provider.</p>
+            </div>
+          </div>
+          <ul class="sync-check-list">
+            <li>Your answers are reviewed before your visit.</li>
+            <li>You can move backward without losing answers during this session.</li>
+            <li>Sensitive questions include “Prefer to discuss with my provider.”</li>
+          </ul>
+          <label class="sync-check consent-intro">
+            <input type="checkbox" name="instructions_acknowledged" required>
+            <span>I understand this form is not monitored for emergencies.</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="About you">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">ABOUT YOU</p>
+          <h2>Let’s start with the essentials.</h2>
+          <p>Fields marked with an asterisk are required.</p>
+        </div>
+        <div class="sync-grid sync-grid-3">
+          <label>Legal first name *<input name="first_name" autocomplete="given-name" required></label>
+          <label>Preferred name<input name="preferred_name" autocomplete="nickname"></label>
+          <label>Last name *<input name="last_name" autocomplete="family-name" required></label>
+          <label>Date of birth *<input type="date" name="date_of_birth" id="date_of_birth" required></label>
+          <label>Age<input name="age" id="age" inputmode="numeric" readonly></label>
+          <label>Mobile phone *<input type="tel" name="phone" autocomplete="tel" required placeholder="###-###-####"></label>
+          <label>Email *<input type="email" name="email" autocomplete="email" required></label>
+          <label>Job title<input name="job_title" autocomplete="organization-title"></label>
+          <label>Nature of work<input name="nature_of_work"></label>
+        </div>
+
+        <div id="guardian-fields" class="sync-subcard" hidden>
+          <h3>Parent or legal guardian</h3>
+          <div class="sync-grid sync-grid-3">
+            <label>Guardian name *<input name="guardian_name"></label>
+            <label>Relationship *<input name="guardian_relationship"></label>
+            <label>Guardian phone *<input type="tel" name="guardian_phone" placeholder="###-###-####"></label>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend>Are you a new or returning patient? *</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="patient_status" value="new" required><span>New patient</span></label>
+            <label class="sync-choice"><input type="radio" name="patient_status" value="returning"><span>Returning patient</span></label>
+          </div>
+        </fieldset>
+        <label id="returning-changes" hidden>What has changed since your last intake?
+          <textarea name="changes_since_last_visit" rows="3"></textarea>
+        </label>
+
+        <div class="sync-grid sync-grid-2">
+          <label>Primary care provider *<input name="primary_care_provider" required></label>
+          <label>Preferred pharmacy *<input name="preferred_pharmacy" required></label>
+          <label>Pharmacy phone *<input type="tel" name="pharmacy_phone" required placeholder="###-###-####"></label>
+          <label>Emergency contact name *<input name="emergency_contact_name" required></label>
+          <label>Emergency contact phone *<input type="tel" name="emergency_contact_phone" required placeholder="###-###-####"></label>
+          <label>Relationship status *
+            <select name="relationship_status" required>
+              <option value="">Select one</option><option>Single</option><option>Married</option>
+              <option>Divorced</option><option>Widowed</option><option>Long-term partnership</option>
+              <option>Prefer not to answer</option><option>Other</option>
+            </select>
+          </label>
+          <label>How did you hear about SYNC Life? *
+            <select name="referral_source" required>
+              <option value="">Select one</option>
+              <option>Google Search</option>
+              <option>Social Media (Facebook/Instagram/TikTok)</option>
+              <option>Friend or Family Referral</option>
+              <option>Doctor or Provider Referral</option>
+              <option>Advertisement</option>
+              <option>Other</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="sync-divider"></div>
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Sex assigned at birth *</legend>
+            <div class="sync-stack">
+              <label class="sync-check"><input type="radio" name="sex_at_birth" value="female" required><span>Female</span></label>
+              <label class="sync-check"><input type="radio" name="sex_at_birth" value="male"><span>Male</span></label>
+            </div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Your goals">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">YOUR HEALTH STORY</p>
+          <h2>Help us understand the whole picture.</h2>
+          <p>Take your time. These answers help the clinical team understand what matters most to you.</p>
+        </div>
+        <label>Please tell us the story behind your health. *
+          <textarea name="health_story" rows="6" required placeholder="What changed, when did it begin and how has it affected you?"></textarea>
+        </label>
+        <label>What do you hope to achieve by working with our team? *
+          <textarea name="desired_outcome" rows="4" required></textarea>
+        </label>
+        <div class="sync-grid sync-grid-3">
+          <label>Goal one *<input name="goal_1" required></label>
+          <label>Goal two<input name="goal_2"></label>
+          <label>Goal three<input name="goal_3"></label>
+        </div>
+        <div class="sync-grid sync-grid-2">
+          <label>When was the last time you felt well?<textarea name="last_felt_well" rows="3"></textarea></label>
+          <label>What has helped you feel better in the past?<textarea name="past_healing" rows="3"></textarea></label>
+        </div>
+        <fieldset>
+          <legend>Did something trigger a change in your health or symptoms?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="health_trigger" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="health_trigger" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="health_trigger" value="unsure"><span>I’m not sure</span></label>
+          </div>
+        </fieldset>
+        <div id="trigger-details" class="sync-subcard" hidden>
+          <div class="sync-grid sync-grid-2">
+            <label>Approximate date<input type="date" name="trigger_date"></label>
+            <label>Type of event<input name="trigger_type" placeholder="Illness, injury, loss, move or other event"></label>
+          </div>
+          <label>What changed afterward?<textarea name="trigger_change" rows="3"></textarea></label>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Current concerns">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">CURRENT CONCERNS</p>
+          <h2>What are you experiencing now?</h2>
+          <p>Add each current or recurring concern. If you have none, select the preventive-care option.</p>
+        </div>
+        <label class="sync-check sync-inline-check">
+          <input type="checkbox" name="preventive_only" value="yes">
+          <span>I do not have a current concern. My visit is preventive or goal-based.</span>
+        </label>
+        <div id="concern-list" class="sync-repeatable">
+          <div class="sync-repeat-row">
+            <div class="sync-grid sync-grid-4">
+              <label>Problem or symptom<input name="concern_name[]"></label>
+              <label>Onset<input name="concern_onset[]" placeholder="Month/year or age"></label>
+              <label>Severity
+                <select name="concern_severity[]"><option value="">Select</option><option>Mild</option><option>Moderate</option><option>Severe</option></select>
+              </label>
+              <label>Frequency<input name="concern_frequency[]" placeholder="Example: twice weekly"></label>
+            </div>
+            <div class="sync-grid sync-grid-3">
+              <label>Trend<select name="concern_trend[]"><option value="">Select</option><option>Improving</option><option>Stable</option><option>Worsening</option><option>Fluctuating</option></select></label>
+              <label>Treatment tried<input name="concern_treatment[]"></label>
+              <label>Response<select name="concern_response[]"><option value="">Select</option><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option><option>Not sure</option></select></label>
+            </div>
+            <label>Known triggers, diagnosis or effect on daily life<textarea name="concern_notes[]" rows="2"></textarea></label>
+            <button type="button" class="sync-remove" data-remove-row>REMOVE CONCERN</button>
+          </div>
+        </div>
+        <button type="button" class="sync-add" data-add-row="concern-list">+ ADD ANOTHER CONCERN</button>
+        <label>How much time have you missed from work or school in the past year because of these concerns?
+          <input name="missed_work_school">
+        </label>
+      </section>
+
+      <section class="sync-step" data-title="Medical history">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">MEDICAL HISTORY</p>
+          <h2>Past and current conditions</h2>
+          <p>Select a condition to add status, onset and treatment details.</p>
+        </div>
+        <div id="condition-groups"></div>
+
+        <div class="sync-divider"></div>
+        <fieldset>
+          <legend>Do you have any allergies or intolerances? *</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="has_allergies" value="yes" required><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="has_allergies" value="no"><span>No known allergies</span></label>
+            <label class="sync-choice"><input type="radio" name="has_allergies" value="unsure"><span>I’m not sure</span></label>
+          </div>
+        </fieldset>
+        <div id="allergy-details" class="sync-subcard" hidden>
+          <div id="allergy-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-4">
+                <label>Substance<input name="allergy_substance[]"></label>
+                <label>Category<select name="allergy_category[]"><option>Medication</option><option>Food</option><option>Environmental</option><option>Other</option></select></label>
+                <label>Reaction<input name="allergy_reaction[]"></label>
+                <label>Severity<select name="allergy_severity[]"><option>Mild</option><option>Moderate</option><option>Severe</option></select></label>
+              </div>
+              <label class="sync-check"><input type="checkbox" name="allergy_emergency[]" value="yes"><span>Emergency treatment was required</span></label>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE ALLERGY</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="allergy-list">+ ADD ANOTHER ALLERGY</button>
+        </div>
+
+        <fieldset>
+          <legend>Have you had hospitalizations or surgeries?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="has_procedures" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="has_procedures" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <div id="procedure-details" class="sync-subcard" hidden>
+          <div id="procedure-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-3">
+                <label>Procedure or hospitalization<input name="procedure_name[]"></label>
+                <label>Date<input type="date" name="procedure_date[]"></label>
+                <label>Reason<input name="procedure_reason[]"></label>
+              </div>
+              <label>Complications or comments<textarea name="procedure_notes[]" rows="2"></textarea></label>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE ENTRY</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="procedure-list">+ ADD ANOTHER ENTRY</button>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Hormone health">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">HORMONE AND REPRODUCTIVE HEALTH</p>
+          <h2>Questions tailored to you</h2>
+          <p>Answer what feels relevant or choose to discuss sensitive information privately.</p>
+        </div>
+        
+        <div id="uterus-module" hidden>
+          <fieldset>
+            <legend>Do you currently have menstrual periods?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="has_periods" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="has_periods" value="no"><span>No</span></label>
+              <label class="sync-choice"><input type="radio" name="has_periods" value="unsure"><span>I’m not sure</span></label>
+            </div>
+          </fieldset>
+          <div id="period-details" class="sync-subcard" hidden>
+            <div class="sync-grid sync-grid-4">
+              <label>Age at first period<input type="number" min="5" max="30" name="menarche_age"></label>
+              <label>Last period<input type="date" name="last_menstrual_period"></label>
+              <label>Typical cycle length<input name="cycle_length" placeholder="Days"></label>
+              <label>Typical period length<input name="period_length" placeholder="Days"></label>
+            </div>
+            <div class="sync-choice-row">
+              <label class="sync-check"><input type="checkbox" name="menstrual_symptoms" value="irregular"><span>Irregular cycles</span></label>
+              <label class="sync-check"><input type="checkbox" name="menstrual_symptoms" value="painful"><span>Painful periods</span></label>
+              <label class="sync-check"><input type="checkbox" name="menstrual_symptoms" value="heavy"><span>Heavy periods</span></label>
+              <label class="sync-check"><input type="checkbox" name="menstrual_symptoms" value="skipped"><span>Skipped periods</span></label>
+              <label class="sync-check"><input type="checkbox" name="menstrual_symptoms" value="pms"><span>PMS symptoms</span></label>
+            </div>
+          </div>
+          <div id="no-period-details" class="sync-subcard" hidden>
+            <label>Why did periods stop?
+              <select name="period_stop_reason"><option value="">Select</option><option>Pregnancy</option><option>Breastfeeding</option><option>Menopause</option><option>Medication</option><option>Surgery</option><option>Not sure</option><option>Other</option></select>
+            </label>
+            <label>Age at menopause, if applicable<input type="number" name="menopause_age"></label>
+          </div>
+
+          <fieldset>
+            <legend>Have you ever been pregnant?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="pregnancy_history" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="pregnancy_history" value="no"><span>No</span></label>
+              <label class="sync-choice"><input type="radio" name="pregnancy_history" value="prefer"><span>Discuss privately</span></label>
+            </div>
+          </fieldset>
+          <div id="pregnancy-history-details" class="sync-subcard" hidden>
+            <div class="sync-grid sync-grid-4">
+              <label>Pregnancies<input type="number" min="0" name="pregnancies"></label>
+              <label>Living children<input type="number" min="0" name="living_children"></label>
+              <label>Vaginal deliveries<input type="number" min="0" name="vaginal_deliveries"></label>
+              <label>Cesarean deliveries<input type="number" min="0" name="cesarean_deliveries"></label>
+              <label>Miscarriages<input type="number" min="0" name="miscarriages"></label>
+              <label>Ectopic pregnancies<input type="number" min="0" name="ectopic_pregnancies"></label>
+            </div>
+            <div class="sync-choice-row">
+              <label class="sync-check"><input type="checkbox" name="pregnancy_complications" value="postpartum_depression"><span>Postpartum depression</span></label>
+              <label class="sync-check"><input type="checkbox" name="pregnancy_complications" value="gestational_diabetes"><span>Gestational diabetes</span></label>
+              <label class="sync-check"><input type="checkbox" name="pregnancy_complications" value="gestational_hypertension"><span>Gestational hypertension</span></label>
+              <label class="sync-check"><input type="checkbox" name="pregnancy_complications" value="preeclampsia"><span>Pre-eclampsia, eclampsia or HELLP</span></label>
+              <label class="sync-check"><input type="checkbox" name="pregnancy_complications" value="baby_over_8"><span>Baby over eight pounds</span></label>
+            </div>
+          </div>
+          <fieldset>
+            <legend>Are you currently pregnant or breastfeeding?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="current_reproductive_status" value="pregnant"><span>Pregnant</span></label>
+              <label class="sync-choice"><input type="radio" name="current_reproductive_status" value="breastfeeding"><span>Breastfeeding</span></label>
+              <label class="sync-choice"><input type="radio" name="current_reproductive_status" value="trying"><span>Trying to conceive</span></label>
+              <label class="sync-choice"><input type="radio" name="current_reproductive_status" value="none"><span>None of these</span></label>
+            </div>
+          </fieldset>
+          <div id="current-pregnancy-details" class="sync-subcard" hidden>
+            <div class="sync-grid sync-grid-3">
+              <label>Estimated due date<input type="date" name="estimated_due_date"></label>
+              <label>Obstetric provider<input name="ob_provider"></label>
+              <label>Current complications<input name="current_pregnancy_complications"></label>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Hormonal or gynecologic symptoms</legend>
+            <div class="sync-choice-grid">
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="fibrocystic_breasts"><span>Fibrocystic breasts</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="hot_flashes"><span>Hot flashes</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="vaginal_dryness"><span>Vaginal dryness</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="urinary_leakage"><span>Urinary leakage</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="endometriosis"><span>Endometriosis</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="fibroids"><span>Fibroids</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="decreased_libido"><span>Decreased libido</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="palpitations"><span>Palpitations</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="brain_fog"><span>Concentration or memory concerns</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="weight_gain"><span>Weight gain</span></label>
+              <label class="sync-check"><input type="checkbox" name="hormone_symptoms" value="other" data-condition-toggle="hormone-other-detail"><span>Other</span></label>
+            </div>
+          </fieldset>
+          <div id="hormone-other-detail" hidden style="margin-bottom: 24px;">
+            <label>Please specify other symptoms<input name="hormone_symptoms_other"></label>
+          </div>
+
+          <div class="sync-grid sync-grid-3">
+            <label>Last Pap test and result<input name="pap_test"></label>
+            <label>Last mammogram and result<input name="mammogram"></label>
+            <label>Last bone density and result<input name="bone_density"></label>
+          </div>
+        </div>
+
+        <div id="prostate-module" hidden>
+          <fieldset>
+            <legend>Relevant prostate, testicular or sexual-health concerns</legend>
+            <div class="sync-choice-grid">
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="urinary"><span>Urinary changes</span></label>
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="prostate"><span>Prostate concern</span></label>
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="testicular"><span>Testicular concern</span></label>
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="erectile"><span>Erectile function</span></label>
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="libido"><span>Decreased libido</span></label>
+              <label class="sync-check"><input type="checkbox" name="male_health_symptoms" value="discuss"><span>Discuss privately</span></label>
+            </div>
+          </fieldset>
+          <label>Details you would like the provider to know<textarea name="male_health_notes" rows="3"></textarea></label>
+        </div>
+
+        <fieldset>
+          <legend>Do you currently use or have you previously used hormone therapy?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="hormone_therapy" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="hormone_therapy" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="hormone_therapy" value="prefer"><span>Discuss privately</span></label>
+          </div>
+        </fieldset>
+        <div id="hormone-therapy-details" class="sync-subcard" hidden>
+          <div id="hormone-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-4">
+                <label>Hormone or product<input name="hormone_product[]"></label>
+                <label>Dose and route<input name="hormone_dose_route[]"></label>
+                <label>Frequency<input name="hormone_frequency[]"></label>
+                <label>Prescribing provider<input name="hormone_prescriber[]"></label>
+              </div>
+              <label>Duration, benefit or side effects<textarea name="hormone_notes[]" rows="2"></textarea></label>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE HORMONE OR PRODUCT</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="hormone-list">+ ADD ANOTHER HORMONE OR PRODUCT</button>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Medications">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">MEDICATIONS AND SUPPLEMENTS</p>
+          <h2>What are you currently taking?</h2>
+        </div>
+        <fieldset>
+          <legend>Do you take prescription or over-the-counter medications? *</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="has_medications" value="yes" required><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="has_medications" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <div id="medication-details" class="sync-subcard" hidden>
+          <div id="medication-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-4">
+                <label>Name<input name="medication_name[]"></label>
+                <label>Dose<input name="medication_dose[]"></label>
+                <label>Route
+                  <select name="medication_route[]" class="med-route-select">
+                    <option value="">Select</option>
+                    <option>Oral</option>
+                    <option>Topical</option>
+                    <option>Injection</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <input type="text" name="medication_route_other[]" class="med-route-other" placeholder="Specify route" hidden style="margin-top: 8px;">
+                </label>
+                <label>Frequency<input name="medication_frequency[]"></label>
+              </div>
+              <div class="sync-grid sync-grid-2">
+                <label>Reason<input name="medication_reason[]"></label>
+                <label>Benefit or side effects<input name="medication_effects[]"></label>
+              </div>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE MEDICATION</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="medication-list">+ ADD ANOTHER MEDICATION</button>
+        </div>
+        <fieldset>
+          <legend>Do you take vitamins, supplements, peptides or other therapies? *</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="has_supplements" value="yes" required><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="has_supplements" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <div id="supplement-details" class="sync-subcard" hidden>
+          <div id="supplement-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-4">
+                <label>Name<input name="supplement_name[]"></label>
+                <label>Dose<input name="supplement_dose[]"></label>
+                <label>Frequency<input name="supplement_frequency[]"></label>
+                <label>Reason<input name="supplement_reason[]"></label>
+              </div>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE SUPPLEMENT</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="supplement-list">+ ADD ANOTHER SUPPLEMENT</button>
+        </div>
+        <fieldset>
+          <legend>Medication and supplement history</legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="sensitive"><span>Sensitive when starting new products</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="side_effects"><span>Unusual side effects</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="nsaids"><span>Regular NSAID use</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="acetaminophen"><span>Regular acetaminophen use</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="acid_blocker"><span>Regular acid-blocker use</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="frequent_antibiotics"><span>Antibiotics more than three times yearly</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="long_antibiotics"><span>Long-term antibiotics</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="long_probiotics"><span>Long-term probiotics</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="steroids"><span>Previous or current steroid use</span></label>
+            <label class="sync-check"><input type="checkbox" name="medication_history" value="contraceptives"><span>Oral contraceptive use</span></label>
+          </div>
+        </fieldset>
+        <label>Please describe products, duration, reactions or side effects that may be important.
+          <textarea name="medication_history_notes" rows="4"></textarea>
+        </label>
+      </section>
+
+      <section class="sync-step" data-title="Nutrition">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">NUTRITION AND DIGESTION</p>
+          <h2>Your everyday patterns</h2>
+        </div>
+        <div class="sync-grid sync-grid-4">
+          <fieldset style="margin: 0; padding: 0; border: 0;">
+            <legend style="margin-bottom: 7px; color: var(--charcoal); font-size: 14px; font-weight: 750;">Height</legend>
+            <div class="sync-grid sync-grid-2" style="gap: 10px; margin-bottom: 0;">
+              <input type="number" name="height_feet" placeholder="Feet" min="1" max="8">
+              <input type="number" name="height_inches" placeholder="Inches" min="0" max="11">
+            </div>
+          </fieldset>
+          <label>Current weight<input name="current_weight" inputmode="decimal"></label>
+          <label>Usual adult weight<input name="usual_weight" inputmode="decimal"></label>
+          <label>Desired weight <span class="sync-optional">(optional)</span><input name="desired_weight" inputmode="decimal"></label>
+        </div>
+        <fieldset>
+          <legend>Have you had a recent unintentional weight change?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="unintentional_weight_change" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="unintentional_weight_change" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <label id="weight-change-details" hidden>Amount and timeframe<input name="weight_change_detail"></label>
+        <label>The most important change I could make to my diet is:
+          <textarea name="diet_priority" rows="2"></textarea>
+        </label>
+        <div class="sync-grid sync-grid-2">
+          <label>Typical breakfast<textarea name="typical_breakfast" rows="3"></textarea></label>
+          <label>Typical lunch<textarea name="typical_lunch" rows="3"></textarea></label>
+          <label>Typical dinner<textarea name="typical_dinner" rows="3"></textarea></label>
+          <label>Typical snacks and beverages<textarea name="typical_snacks_beverages" rows="3"></textarea></label>
+        </div>
+        <fieldset>
+          <legend>Do you follow a special diet or nutrition program?</legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="gluten_free"><span>Gluten-free</span></label>
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="diabetes_focused"><span>Diabetes-focused</span></label>
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="dairy_restricted"><span>Dairy-restricted</span></label>
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="vegetarian"><span>Vegetarian</span></label>
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="vegan"><span>Vegan</span></label>
+            <label class="sync-check"><input type="checkbox" name="diet_type" value="other"><span>Other</span></label>
+          </div>
+        </fieldset>
+        <div class="sync-grid sync-grid-3">
+          <label>Fruit and vegetable servings daily<input type="number" min="0" name="produce_servings"></label>
+          <label>Water daily<input name="water_intake" placeholder="Ounces or cups"></label>
+          <label>Caffeine daily<input name="caffeine_intake" placeholder="Type and amount"></label>
+        </div>
+        <fieldset>
+          <legend>Do you experience symptoms after eating?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="food_reactions" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="food_reactions" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <div id="food-reaction-details" class="sync-subcard" hidden>
+          <label>Foods, supplements, symptoms and timing<textarea name="food_reaction_notes" rows="3"></textarea></label>
+        </div>
+        <fieldset>
+          <legend>Digestive history <span class="sync-optional">(select all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="gastroenteritis"><span>Severe gastroenteritis</span></label>
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="diarrhea"><span>Severe or prolonged diarrhea</span></label>
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="poor_digestion"><span>Food does not feel well digested</span></label>
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="bloating"><span>Bloating after meals</span></label>
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="reflux"><span>Reflux or heartburn</span></label>
+            <label class="sync-check"><input type="checkbox" name="digestive_symptoms" value="gas"><span>Painful or excessive gas</span></label>
+          </div>
+        </fieldset>
+        <div class="sync-grid sync-grid-2">
+          <label>Typical bowel-movement frequency<input name="bowel_frequency"></label>
+          <label>Digestive details, triggers or stool changes<input name="digestive_notes"></label>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Lifestyle">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">LIFESTYLE</p>
+          <h2>Habits, movement and recovery</h2>
+        </div>
+        <fieldset>
+          <legend>Do you currently use tobacco or nicotine?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="current_tobacco" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="current_tobacco" value="former"><span>Former use</span></label>
+            <label class="sync-choice"><input type="radio" name="current_tobacco" value="no"><span>Never</span></label>
+          </div>
+        </fieldset>
+        <div id="tobacco-details" class="sync-subcard" hidden>
+          <div class="sync-grid sync-grid-3">
+            <label>Product type<input name="tobacco_type" placeholder="Cigarettes, vape or other"></label>
+            <label>Amount<input name="tobacco_amount"></label>
+            <label>Number of years<input name="tobacco_years"></label>
+          </div>
+          <div class="sync-grid sync-grid-2">
+            <label>Quit date or previous quit attempts<input name="tobacco_quit"></label>
+            <label>Would you like support?<select name="tobacco_support"><option value="">Select</option><option>Yes</option><option>No</option><option>Maybe</option></select></label>
+          </div>
+        </div>
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Do you currently drink alcohol?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="alcohol_use" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="alcohol_use" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <div id="alcohol-details" hidden>
+            <label>Drinks per week<input type="number" min="0" name="alcohol_weekly"></label>
+            <label>Any concern or interest in support?<input name="alcohol_concern"></label>
+          </div>
+        </div>
+        <fieldset>
+          <legend>Do you currently use recreational or non-prescribed substances?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="substance_use" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="substance_use" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="substance_use" value="prefer"><span>Discuss privately</span></label>
+          </div>
+        </fieldset>
+        <div id="substance-details" class="sync-subcard" hidden>
+          <div class="sync-grid sync-grid-3">
+            <label>Substance<input name="substance_type"></label>
+            <label>Frequency and route<input name="substance_frequency_route"></label>
+            <label>Most recent use<input name="substance_last_use"></label>
+          </div>
+        </div>
+        <fieldset>
+          <legend>Do you exercise regularly?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="regular_exercise" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="regular_exercise" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        
+        <div id="exercise-details" class="sync-subcard" hidden>
+          <div id="exercise-list" class="sync-repeatable">
+            <div class="sync-repeat-row">
+              <div class="sync-grid sync-grid-4">
+                <label>Activity type<input name="exercise_type[]"></label>
+                <label>Sessions per week<input type="number" min="0" name="exercise_sessions[]"></label>
+                <label>Minutes per session<input type="number" min="0" name="exercise_minutes[]"></label>
+                <label>Intensity<select name="exercise_intensity[]"><option>Low</option><option>Moderate</option><option>High</option></select></label>
+              </div>
+              <button type="button" class="sync-remove" data-remove-row>REMOVE EXERCISE</button>
+            </div>
+          </div>
+          <button type="button" class="sync-add" data-add-row="exercise-list">+ ADD ANOTHER EXERCISE</button>
+        </div>
+
+        <label id="exercise-barriers" hidden>What limits activity or makes exercise difficult?<textarea name="activity_limitations" rows="3"></textarea></label>
+        <fieldset>
+          <legend>Do you feel unusually fatigued or sore after exercise?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="post_exercise_fatigue" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="post_exercise_fatigue" value="no"><span>No</span></label>
+          </div>
+        </fieldset>
+        <label id="exercise-fatigue-details" hidden>Describe the severity and recovery time<textarea name="post_exercise_fatigue_notes" rows="2"></textarea></label>
+      </section>
+
+      <section class="sync-step" data-title="Mind and sleep">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">MINDSET AND SLEEP</p>
+          <h2>How are you feeling day to day?</h2>
+        </div>
+        <div class="sync-grid sync-grid-2">
+          <label>Current vitality compared with one year ago
+            <select name="vitality_change"><option value="">Select</option><option>Much better</option><option>Somewhat better</option><option>About the same</option><option>Somewhat lower</option><option>Much lower</option></select>
+          </label>
+          <label>Current stress level: <output id="stress-output">5</output> of 10
+            <input type="range" name="stress_level" id="stress_level" min="0" max="10" value="5">
+          </label>
+        </div>
+        <fieldset>
+          <legend>Whole-person health</legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="psychosocial" value="generally_happy"><span>I generally feel happy</span></label>
+            <label class="sync-check"><input type="checkbox" name="psychosocial" value="meaning"><span>My life has meaning and purpose</span></label>
+            <label class="sync-check"><input type="checkbox" name="psychosocial" value="work_satisfaction"><span>I am satisfied with my work</span></label>
+            <label class="sync-check"><input type="checkbox" name="psychosocial" value="major_loss"><span>I have experienced a major loss</span></label>
+            <label class="sync-check"><input type="checkbox" name="psychosocial" value="stress_quality"><span>Stress reduces my quality of life</span></label>
+          </div>
+        </fieldset>
+        <label>Main sources of stress, support or important context<textarea name="psychosocial_notes" rows="3"></textarea></label>
+        <div class="sync-divider"></div>
+        <div class="sync-grid sync-grid-3">
+          <label>Average hours of sleep<input type="number" min="0" max="24" step=".5" name="sleep_hours"></label>
+          <label>Typical bedtime<input type="time" name="bedtime"></label>
+          <label>Typical wake time<input type="time" name="wake_time"></label>
+        </div>
+        <fieldset>
+          <legend>Sleep concerns <span class="sync-optional">(select all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="falling_asleep"><span>Trouble falling asleep</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="awakenings"><span>Nighttime awakenings</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="insomnia"><span>Insomnia</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="not_rested"><span>Not rested on waking</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="snoring"><span>Snoring</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="apnea"><span>Witnessed breathing pauses</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="daytime_sleepiness"><span>Daytime sleepiness</span></label>
+            <label class="sync-check"><input type="checkbox" name="sleep_concerns" value="sleep_aid"><span>Use a sleep aid</span></label>
+          </div>
+        </fieldset>
+        <label>Sleep aid, CPAP use or other sleep details<textarea name="sleep_notes" rows="3"></textarea></label>
+        <div class="sync-divider"></div>
+        <fieldset>
+          <legend>Are you currently having thoughts of harming yourself or ending your life? *</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="self_harm" value="yes" required><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="self_harm" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="self_harm" value="prefer"><span>Prefer to discuss</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="sync-step" data-title="Environment">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">ENVIRONMENT</p>
+          <h2>Exposures and sensitivities</h2>
+        </div>
+        <fieldset>
+          <legend>Which significantly affect you?</legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="smoke"><span>Cigarette smoke</span></label>
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="fragrance"><span>Perfume or cologne</span></label>
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="exhaust"><span>Vehicle exhaust</span></label>
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="chemicals"><span>Chemicals</span></label>
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="mold"><span>Mold</span></label>
+            <label class="sync-check"><input type="checkbox" name="environmental_triggers" value="other"><span>Other</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Have you lived or worked in a damp or moldy environment?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="mold_exposure" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="mold_exposure" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="mold_exposure" value="unsure"><span>I’m not sure</span></label>
+          </div>
+        </fieldset>
+        <div id="mold-details" class="sync-subcard" hidden>
+          <label>Location, timeframe, water or storm damage, remediation and symptoms<textarea name="mold_exposure_details" rows="3"></textarea></label>
+        </div>
+        <fieldset>
+          <legend>Known harmful chemical exposure?</legend>
+          <div class="sync-choice-row">
+            <label class="sync-choice"><input type="radio" name="chemical_exposure" value="yes"><span>Yes</span></label>
+            <label class="sync-choice"><input type="radio" name="chemical_exposure" value="no"><span>No</span></label>
+            <label class="sync-choice"><input type="radio" name="chemical_exposure" value="unsure"><span>I’m not sure</span></label>
+          </div>
+        </fieldset>
+        <div id="chemical-details" class="sync-subcard" hidden>
+          <div class="sync-grid sync-grid-3">
+            <label>Chemical name<input name="chemical_name"></label>
+            <label>Date and duration<input name="chemical_date_duration"></label>
+            <label>Home or workplace<input name="chemical_location"></label>
+          </div>
+          <label>Symptoms or other details<textarea name="chemical_symptoms" rows="2"></textarea></label>
+        </div>
+        <label>Personal-care products or environmental details you want us to know<textarea name="environment_notes" rows="3"></textarea></label>
+        <div class="sync-divider"></div>
+        <fieldset>
+          <legend>Are you experiencing any of these symptoms right now? *</legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="emergency_symptoms" value="chest_pain"><span>Chest pain</span></label>
+            <label class="sync-check"><input type="checkbox" name="emergency_symptoms" value="breathing"><span>Severe difficulty breathing</span></label>
+            <label class="sync-check"><input type="checkbox" name="emergency_symptoms" value="stroke"><span>New weakness, facial drooping or trouble speaking</span></label>
+            <label class="sync-check"><input type="checkbox" name="emergency_symptoms" value="allergic_reaction"><span>Severe allergic-reaction symptoms</span></label>
+            <label class="sync-check"><input type="checkbox" name="emergency_symptoms" value="none"><span>None of these</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="sync-step" data-title="Review">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">REVIEW AND SIGN</p>
+          <h2>Make sure everything looks right.</h2>
+          <p>Your complete answers will be submitted. This summary highlights the main sections.</p>
+        </div>
+        <div id="review-summary" class="sync-review"></div>
+        <div class="sync-consent-card">
+          <h3>Privacy and consent</h3>
+          <p id="consent-copy">I attest that I have reviewed the current SYNC Life privacy notice and that the information provided is accurate to the best of my knowledge. I understand this form does not replace medical advice and I should discuss medical decisions with my primary care provider.</p>
+          <label class="sync-check">
+            <input type="checkbox" name="privacy_acknowledgment" required>
+            <span>I acknowledge the privacy notice and consent statement. *</span>
+          </label>
+          <label>Electronic signature *<input name="electronic_signature" required placeholder="Type your full legal name"></label>
+          <label>Date signed *<input type="date" name="date_signed" id="date_signed" required></label>
+          <label class="sync-check">
+            <input type="checkbox" name="marketing_consent" value="yes">
+            <span>I would like to receive optional SYNC Life updates. This is not required for care.</span>
+          </label>
+        </div>
+        <div id="submission-message" class="sync-alert sync-alert-success" hidden></div>
+      </section>
+
+      <div class="sync-actions">
+        <button type="button" id="sync-back" class="sync-btn sync-btn-outline" hidden>BACK</button>
+        <button type="button" id="sync-save" class="sync-btn sync-btn-ghost">SAVE FOR LATER</button>
+        <button type="button" id="sync-next" class="sync-btn sync-btn-primary">GET STARTED</button>
+        <button type="submit" id="sync-submit" class="sync-btn sync-btn-primary" hidden>SUBMIT INTAKE</button>
+      </div>
+    </form>
+
+    <footer class="sync-footer">
+      <span>SYNC Life</span>
+      <span>[UPDATE ADDRESS HERE]</span>
+      <a href="tel:+12254257962">(225) 425-7962</a>
+    </footer>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const CONFIG = {
+    logoUrl: "",
+    submitEndpoint: "https://synclife.app.n8n.cloud/webhook-test/99e692d1-38ba-4db4-9b5f-8a509d8ecd11",
+    saveDraftEndpoint: "",
+    redirectUrl: "",
+    consentVersion: "2026.07",
+    debug: false
+  };
+
+  const conditionGroups = {
+    "Gastrointestinal": ["Gastritis or peptic ulcer disease", "GERD or reflux", "Celiac disease", "Other gastrointestinal condition", "Other"],
+    "Cardiovascular": ["Heart attack", "Other heart disease", "Stroke or TIA", "Elevated cholesterol", "Arrhythmia", "Hypertension", "Rheumatic fever", "Other"],
+    "Metabolic and endocrine": ["Type 1 diabetes", "Type 2 diabetes", "Hypoglycemia", "Metabolic syndrome", "Insulin resistance", "Hypothyroidism", "Hyperthyroidism", "Other endocrine condition", "PCOS", "Infertility", "Other"],
+    "Genital and urinary": ["Kidney stones", "Gout", "Interstitial cystitis", "Frequent urinary tract infections", "Frequent yeast infections", "Erectile dysfunction", "Less-than-ideal sexual health", "Painful sexual activity", "Other"],
+    "Musculoskeletal and pain": ["Osteoarthritis", "Fibromyalgia", "Chronic pain", "Other musculoskeletal condition", "Other"],
+    "Inflammatory, autoimmune and immune": ["Chronic fatigue syndrome", "Autoimmune disease", "Rheumatoid arthritis", "Lupus", "Immune deficiency", "Herpes or HPV", "Hepatitis or severe infectious disease", "Frequent infections or poor immune function", "Food allergies", "Environmental allergies", "Other"],
+    "Weight and eating history": ["Weight gain", "Weight loss", "Frequent weight fluctuation", "Bulimia", "Other eating-disorder history", "Other"],
+    "Neurologic and mood": ["Depression", "Anxiety", "Bipolar disorder", "Schizophrenia", "Headaches", "Migraines", "ADD or ADHD", "Autism", "Mild cognitive impairment", "Memory concerns", "Parkinson’s disease", "Multiple sclerosis", "ALS", "Seizures", "Alzheimer’s disease", "Multiple chemical sensitivities", "Other"],
+    "Respiratory": ["Asthma", "Chronic sinusitis", "Bronchitis", "Emphysema or COPD", "Pneumonia", "Tuberculosis", "Sleep apnea", "Other"],
+    "Skin": ["Eczema", "Psoriasis", "Acne", "Other skin condition", "Other"],
+    "Cancer history": ["Lung cancer", "Uterine cancer", "Colon cancer", "Ovarian cancer", "Prostate cancer", "Skin cancer or melanoma", "Other cancer", "Other"]
+  };
+
+  const form = document.getElementById("sync-intake-form");
+  const steps = [...form.querySelectorAll(".sync-step")];
+  const progress = document.getElementById("sync-progress-bar");
+  const stepLabel = document.getElementById("sync-step-label");
+  const estimate = document.getElementById("sync-estimate");
+  const backBtn = document.getElementById("sync-back");
+  const nextBtn = document.getElementById("sync-next");
+  const saveBtn = document.getElementById("sync-save");
+  const submitBtn = document.getElementById("sync-submit");
+  const statusBox = document.getElementById("sync-status");
+  const emergencyBox = document.getElementById("sync-emergency");
+  let currentStep = 0;
+
+  function slug(value) {
+    return value.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_");
+  }
+
+  function renderConditions() {
+    const host = document.getElementById("condition-groups");
+    host.innerHTML = Object.entries(conditionGroups).map(([group, conditions], groupIndex) => `
+      <details class="sync-condition-group" ${groupIndex === 0 ? "open" : ""}>
+        <summary>${group}</summary>
+        <div class="sync-condition-list">
+          ${conditions.map(condition => {
+            const isOther = condition === "Other";
+            const id = "condition_" + slug(group + "_" + condition);
+            const valueName = isOther ? group + " - Other" : condition;
+            return `
+              <div class="sync-condition-item">
+                <label class="sync-check">
+                  <input type="checkbox" name="conditions" value="${escapeHtml(valueName)}" data-condition-toggle="${id}">
+                  <span>${escapeHtml(condition)}</span>
+                </label>
+                <div class="sync-condition-detail" id="${id}" hidden>
+                  ${isOther ? `<label>Condition name<input name="${id}_name"></label>` : ''}
+                  <label>Status
+                    <select name="${id}_status"><option value="">Select</option><option>Past</option><option>Current</option><option>Both past and current</option></select>
+                  </label>
+                  <label>Onset<input name="${id}_onset" placeholder="Date or approximate age"></label>
+                  <label>Treatment, provider or comments<input name="${id}_details"></label>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </details>`).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[char]));
+  }
+
+  function selected(name) {
+    return form.querySelector(`[name="${CSS.escape(name)}"]:checked`)?.value || "";
+  }
+
+  function checkedValues(name) {
+    return [...form.querySelectorAll(`[name="${CSS.escape(name)}"]:checked`)].map(input => input.value);
+  }
+
+  function show(id, shouldShow, requireFields = false) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.hidden = !shouldShow;
+    element.querySelectorAll("input,select,textarea").forEach(field => {
+      if (field.dataset.baseRequired === undefined) field.dataset.baseRequired = field.required ? "true" : "false";
+      field.required = shouldShow && requireFields && field.dataset.baseRequired === "true";
+      field.disabled = !shouldShow;
+    });
+  }
+
+  function setConditionalState() {
+    const birthDate = document.getElementById("date_of_birth").value;
+    if (birthDate) {
+      const today = new Date();
+      const dob = new Date(`${birthDate}T12:00:00`);
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDifference = today.getMonth() - dob.getMonth();
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dob.getDate())) age--;
+      document.getElementById("age").value = age >= 0 ? age : "";
+      show("guardian-fields", age >= 0 && age < 18);
+    } else {
+      document.getElementById("age").value = "";
+      show("guardian-fields", false);
+    }
+
+    show("returning-changes", selected("patient_status") === "returning");
+    show("trigger-details", selected("health_trigger") === "yes");
+    show("allergy-details", selected("has_allergies") === "yes");
+    show("procedure-details", selected("has_procedures") === "yes");
+    show("medication-details", selected("has_medications") === "yes");
+    show("supplement-details", selected("has_supplements") === "yes");
+    show("weight-change-details", selected("unintentional_weight_change") === "yes");
+    show("food-reaction-details", selected("food_reactions") === "yes");
+    show("tobacco-details", ["yes","former"].includes(selected("current_tobacco")));
+    show("alcohol-details", selected("alcohol_use") === "yes");
+    show("substance-details", selected("substance_use") === "yes");
+    show("exercise-details", selected("regular_exercise") === "yes");
+    show("exercise-barriers", selected("regular_exercise") === "no");
+    show("exercise-fatigue-details", selected("post_exercise_fatigue") === "yes");
+    show("mold-details", selected("mold_exposure") === "yes");
+    show("chemical-details", selected("chemical_exposure") === "yes");
+    show("hormone-therapy-details", selected("hormone_therapy") === "yes");
+
+    const sex = selected("sex_at_birth");
+    const uterusRelevant = sex === "female";
+    const prostateRelevant = sex === "male";
+    
+    show("uterus-module", uterusRelevant);
+    show("prostate-module", prostateRelevant);
+    show("period-details", uterusRelevant && selected("has_periods") === "yes");
+    show("no-period-details", uterusRelevant && selected("has_periods") === "no");
+    show("pregnancy-history-details", uterusRelevant && selected("pregnancy_history") === "yes");
+    show("current-pregnancy-details", uterusRelevant && selected("current_reproductive_status") === "pregnant");
+
+    form.querySelectorAll("[data-condition-toggle]").forEach(toggle => {
+      show(toggle.dataset.conditionToggle, toggle.checked);
+    });
+
+    const emergencySymptoms = checkedValues("emergency_symptoms").filter(value => value !== "none");
+    const urgent = emergencySymptoms.length > 0 || selected("self_harm") === "yes";
+    emergencyBox.hidden = !urgent;
+    if (urgent) emergencyBox.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    document.getElementById("stress-output").textContent = document.getElementById("stress_level").value;
+    estimate.textContent = estimateTime();
+  }
+
+  function estimateTime() {
+    let minutes = 11;
+    if (selected("has_allergies") === "yes") minutes += 1;
+    if (selected("has_medications") === "yes") minutes += 2;
+    if (selected("has_supplements") === "yes") minutes += 1;
+    if (!document.getElementById("uterus-module").hidden) minutes += 3;
+    if (!document.getElementById("prostate-module").hidden) minutes += 1;
+    const selectedConditions = checkedValues("conditions").length;
+    minutes += Math.min(6, Math.ceil(selectedConditions / 2));
+    return `About ${minutes} minutes`;
+  }
+
+  function updateStep() {
+    steps.forEach((step, index) => step.classList.toggle("is-active", index === currentStep));
+    const title = steps[currentStep].dataset.title;
+    stepLabel.textContent = title;
+    progress.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
+    backBtn.hidden = currentStep === 0;
+    nextBtn.hidden = currentStep === steps.length - 1;
+    submitBtn.hidden = currentStep !== steps.length - 1;
+    nextBtn.textContent = currentStep === 0 ? "GET STARTED" : "CONTINUE";
+    if (currentStep === steps.length - 1) buildReview();
+    setConditionalState();
+    statusBox.classList.remove("is-visible");
+    window.scrollTo({ top: document.getElementById("sync-intake-app").offsetTop, behavior: "smooth" });
+  }
+
+  function visibleRequiredFields() {
+    return [...steps[currentStep].querySelectorAll("[required]")].filter(field => {
+      const hiddenParent = field.closest("[hidden]");
+      return !hiddenParent && !field.disabled;
+    });
+  }
+
+  function validateStep() {
+    setConditionalState();
+    const required = visibleRequiredFields();
+    let firstInvalid = null;
+    required.forEach(field => {
+      field.classList.remove("sync-invalid");
+      let valid = field.checkValidity();
+      if ((field.type === "radio" || field.type === "checkbox") && field.name) {
+        valid = !!steps[currentStep].querySelector(`[name="${CSS.escape(field.name)}"]:checked`);
+      }
+      if (!valid) {
+        field.classList.add("sync-invalid");
+        firstInvalid ||= field;
+      }
+    });
+    if (firstInvalid) {
+      statusBox.textContent = "Please complete the required fields before continuing.";
+      statusBox.classList.add("is-visible");
+      firstInvalid.focus();
+      firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    return true;
+  }
+
+  function payloadFromForm() {
+    const data = {};
+    const formData = new FormData(form);
+    for (const [key, value] of formData.entries()) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        if (!Array.isArray(data[key])) data[key] = [data[key]];
+        data[key].push(value);
+      } else data[key] = value;
+    }
+    
+    for (const key in data) {
+      if (Array.isArray(data[key])) {
+        data[key] = data[key].filter(Boolean).join(", ");
+      }
+    }
+
+    data.form_version = form.querySelector('[name="form_version"]').value;
+    data.consent_version = CONFIG.consentVersion;
+    data.submitted_at = new Date().toISOString();
+    data.page_url = location.href.split("?")[0];
+
+    return data;
+  }
+
+  function buildReview() {
+    const data = payloadFromForm();
+    const sections = [
+      ["Patient", ["first_name","preferred_name","last_name","date_of_birth","phone","email","primary_care_provider"]],
+      ["Health story and goals", ["health_story","desired_outcome","goal_1","goal_2","goal_3","last_felt_well"]],
+      ["Current concerns", ["concern_name[]","concern_severity[]","concern_frequency[]","concern_notes[]"]],
+      ["Allergies", ["has_allergies","allergy_substance[]","allergy_reaction[]","allergy_severity[]"]],
+      ["Medications and supplements", ["medication_name[]","medication_dose[]","supplement_name[]","supplement_dose[]"]],
+      ["Nutrition and lifestyle", ["current_weight","diet_priority","food_reaction_notes","current_tobacco","alcohol_weekly","exercise_type"]],
+      ["Mind and sleep", ["vitality_change","stress_level","sleep_hours","sleep_concerns"]],
+      ["Environment", ["environmental_triggers","mold_exposure_details","chemical_name"]]
+    ];
+    const labelFor = key => key.replace(/\[\]/g, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    document.getElementById("review-summary").innerHTML = sections.map(([title, keys]) => {
+      const entries = keys.filter(key => data[key] !== undefined && data[key] !== "").map(key => {
+        const value = Array.isArray(data[key]) ? data[key].filter(Boolean).join(", ") : data[key];
+        return value ? `<dt>${escapeHtml(labelFor(key))}</dt><dd>${escapeHtml(value)}</dd>` : "";
+      }).filter(Boolean).join("");
+      return entries ? `<div class="sync-review-section"><h3>${title}</h3><dl>${entries}</dl></div>` : "";
+    }).join("") + `
+      <div class="sync-review-section">
+        <h3>Conditions selected</h3>
+        <p>${escapeHtml(checkedValues("conditions").join(", ") || "None reported")}</p>
+      </div>`;
+  }
+
+  async function postJson(url, payload) {
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      // Fallback for strict browser CORS when testing on localhost
+      await fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(payload)
+      });
+    }
+  }
+
+  // Live Telephone Formatter
+  form.addEventListener('input', e => {
+    if (e.target.type === 'tel') {
+      let val = e.target.value.replace(/\D/g, '');
+      let formatted = val;
+      if (val.length > 3 && val.length <= 6) {
+        formatted = val.slice(0,3) + '-' + val.slice(3);
+      } else if (val.length > 6) {
+        formatted = val.slice(0,3) + '-' + val.slice(3,6) + '-' + val.slice(6,10);
+      }
+      e.target.value = formatted;
+    }
+  });
+
+  // Dynamic Listeners for Emergency and Route Dropdowns
+  form.addEventListener("change", event => {
+    if (event.target.name === "emergency_symptoms" && event.target.value === "none" && event.target.checked) {
+      form.querySelectorAll('[name="emergency_symptoms"]:not([value="none"])').forEach(box => box.checked = false);
+    } else if (event.target.name === "emergency_symptoms" && event.target.value !== "none" && event.target.checked) {
+      const none = form.querySelector('[name="emergency_symptoms"][value="none"]');
+      if (none) none.checked = false;
+    }
+
+    if (event.target.classList.contains('med-route-select')) {
+      const otherInput = event.target.nextElementSibling;
+      if (event.target.value === 'other') {
+        otherInput.hidden = false;
+        otherInput.required = true;
+      } else {
+        otherInput.hidden = true;
+        otherInput.required = false;
+        otherInput.value = '';
+      }
+    }
+    
+    setConditionalState();
+  });
+  
+  form.addEventListener("input", setConditionalState);
+
+  nextBtn.addEventListener("click", () => {
+    if (!validateStep()) return;
+    currentStep = Math.min(steps.length - 1, currentStep + 1);
+    updateStep();
+  });
+  backBtn.addEventListener("click", () => {
+    currentStep = Math.max(0, currentStep - 1);
+    updateStep();
+  });
+
+  form.addEventListener("click", event => {
+    const addButton = event.target.closest("[data-add-row]");
+    if (addButton) {
+      const list = document.getElementById(addButton.dataset.addRow);
+      const clone = list.querySelector(".sync-repeat-row").cloneNode(true);
+      clone.querySelectorAll("input,select,textarea").forEach(field => {
+        if (field.type === "checkbox" || field.type === "radio") field.checked = false;
+        else field.value = "";
+        if (field.classList.contains('med-route-other')) field.hidden = true;
+      });
+      list.appendChild(clone);
+    }
+    const removeButton = event.target.closest("[data-remove-row]");
+    if (removeButton) {
+      const row = removeButton.closest(".sync-repeat-row");
+      const list = row.parentElement;
+      if (list.querySelectorAll(".sync-repeat-row").length > 1) row.remove();
+      else row.querySelectorAll("input,select,textarea").forEach(field => {
+        if (field.type === "checkbox" || field.type === "radio") field.checked = false;
+        else field.value = "";
+        if (field.classList.contains('med-route-other')) field.hidden = true;
+      });
+    }
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const payload = payloadFromForm();
+    if (!CONFIG.saveDraftEndpoint) {
+      statusBox.textContent = "Secure save-for-later is not configured. Add an approved draft endpoint in CONFIG before enabling this feature.";
+      statusBox.classList.add("is-visible");
+      window.dispatchEvent(new CustomEvent("syncLifeIntakeDraftRequested", { detail: payload }));
+      return;
+    }
+    try {
+      saveBtn.disabled = true;
+      await postJson(CONFIG.saveDraftEndpoint, payload);
+      statusBox.textContent = "Your progress was saved securely.";
+      statusBox.classList.add("is-visible");
+    } catch (error) {
+      statusBox.textContent = "We could not save your progress. Please try again.";
+      statusBox.classList.add("is-visible");
+      if (CONFIG.debug) console.error(error);
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!validateStep()) return;
+    const payload = payloadFromForm();
+    document.getElementById("submitted_at").value = payload.submitted_at;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "SUBMITTING…";
+    try {
+      if (CONFIG.submitEndpoint) {
+        await postJson(CONFIG.submitEndpoint, payload);
+      }
+      const message = document.getElementById("submission-message");
+      message.innerHTML = "<strong>Your intake is ready.</strong><br>Your information has been sent successfully.";
+      message.hidden = false;
+      if (CONFIG.redirectUrl) window.location.assign(CONFIG.redirectUrl);
+    } catch (error) {
+      statusBox.textContent = "Your intake could not be submitted. Please check your connection and try again.";
+      statusBox.classList.add("is-visible");
+      if (CONFIG.debug) console.error(error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "SUBMIT INTAKE";
+    }
+  });
+
+  renderConditions();
+  if (CONFIG.logoUrl) {
+    const logo = document.getElementById("sync-logo");
+    logo.src = CONFIG.logoUrl;
+    logo.hidden = false;
+    document.getElementById("sync-logo-fallback").hidden = true;
+  }
+  document.getElementById("date_signed").value = new Date().toISOString().slice(0,10);
+  updateStep();
+})();
+</script>
+
+</body>
+</html>
