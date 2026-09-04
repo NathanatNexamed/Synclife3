@@ -1347,7 +1347,6 @@
     event.preventDefault();
     if (!validateStep()) return;
 
-    // Instantly disable button to prevent double clicks during network request
     submitBtn.disabled = true;
     submitBtn.textContent = "SUBMITTING…";
 
@@ -1359,13 +1358,12 @@
         await postJson(CONFIG.submitEndpoint, payload);
       }
 
-      // If a redirect URL is specified (e.g. GHL Consent Forms), forward them immediately
       if (CONFIG.redirectUrl) {
         window.location.assign(CONFIG.redirectUrl);
         return;
       }
 
-      // Otherwise, hide the form and show a full-screen confirmation card
+      // Hide the form and top indicators
       form.hidden = true;
       
       const progressMeta = document.querySelector(".sync-progress");
@@ -1375,6 +1373,7 @@
       if (headerMeta) headerMeta.hidden = true;
 
       const shell = document.querySelector(".sync-shell");
+      const footer = document.querySelector(".sync-footer");
       
       const successCard = document.createElement("div");
       successCard.style.padding = "60px 30px";
@@ -1386,7 +1385,13 @@
         <p style="font-size: 14px; color: #667679;">You may close this tab or window now.</p>
       `;
 
-      shell.appendChild(successCard);
+      // Insert success message BEFORE footer so footer remains at bottom
+      if (footer) {
+        shell.insertBefore(successCard, footer);
+      } else {
+        shell.appendChild(successCard);
+      }
+
       window.scrollTo({ top: shell.offsetTop, behavior: "smooth" });
 
     } catch (error) {
