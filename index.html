@@ -976,7 +976,7 @@
     saveDraftEndpoint: "https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/2361bb28-5de4-4ed2-9d8a-32e8f58ffb53",
     redirectUrl: "",
     consentVersion: "2026.07",
-    debug: false
+    debug: true
   };
 
   const conditionGroups = {
@@ -1203,7 +1203,7 @@
     return data;
   }
 
-  // --- LOCALSTORAGE DRAFT MANAGEMENT ---
+  // LocalStorage Draft Functions
   function saveLocalDraft() {
     try {
       const data = payloadFromForm();
@@ -1272,19 +1272,38 @@
       </div>`;
   }
 
+  // Helper for JSON Webhook POST with LeadConnector/GHL Support
   async function postJson(url, payload) {
+    const jsonString = JSON.stringify(payload);
+    console.log("Sending payload to webhook:", url, payload);
+    
     try {
-      await fetch(url, {
+      const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(payload)
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: jsonString
       });
+      console.log("Webhook response status:", response.status);
     } catch (e) {
-      await fetch(url, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(payload)
-      });
+      console.warn("Standard JSON fetch encounter CORS, executing sendBeacon/no-cors fallback...", e);
+      try {
+        if (navigator.sendBeacon) {
+          const blob = new Blob([jsonString], { type: 'application/json' });
+          navigator.sendBeacon(url, blob);
+        } else {
+          await fetch(url, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: jsonString
+          });
+        }
+      } catch (err) {
+        console.error("Fallback POST also encountered error:", err);
+      }
     }
   }
 
@@ -1331,7 +1350,7 @@
     saveLocalDraft();
   });
 
-  // NEXT BUTTON: Validates step, auto-saves to LocalStorage, and advances
+  // NEXT BUTTON: Autosaves locally & advances
   nextBtn.addEventListener("click", () => {
     if (!validateStep()) return;
     saveLocalDraft();
@@ -1369,7 +1388,7 @@
     }
   });
 
-  // SAVE FOR LATER BUTTON: Webhook POST + "Saved for Later" Screen
+  // SAVE FOR LATER: Webhook POST to LeadConnector + Full-Screen Confirmation Screen
   saveBtn.addEventListener("click", async () => {
     saveLocalDraft();
     const payload = payloadFromForm();
