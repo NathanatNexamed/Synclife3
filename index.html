@@ -1195,6 +1195,14 @@
       }
     }
 
+    // Auto-generate or retrieve persistent draft_id for this session
+    let draftId = localStorage.getItem('sync_life_draft_id');
+    if (!draftId) {
+      draftId = 'draft_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+      localStorage.setItem('sync_life_draft_id', draftId);
+    }
+    data.draft_id = draftId;
+
     data.form_version = form.querySelector('[name="form_version"]').value;
     data.consent_version = CONFIG.consentVersion;
     data.submitted_at = new Date().toISOString();
@@ -1288,7 +1296,7 @@
       });
       console.log("Webhook response status:", response.status);
     } catch (e) {
-      console.warn("Standard JSON fetch encounter CORS, executing sendBeacon/no-cors fallback...", e);
+      console.warn("Standard JSON fetch encountered CORS, executing sendBeacon/no-cors fallback...", e);
       try {
         if (navigator.sendBeacon) {
           const blob = new Blob([jsonString], { type: 'application/json' });
@@ -1477,8 +1485,9 @@
         await postJson(CONFIG.submitEndpoint, payload);
       }
 
-      // Clear local draft on successful submission
+      // Clear local draft and session draft_id on successful submission
       localStorage.removeItem('sync_life_intake_draft');
+      localStorage.removeItem('sync_life_draft_id');
 
       if (CONFIG.redirectUrl) {
         window.location.assign(CONFIG.redirectUrl);
