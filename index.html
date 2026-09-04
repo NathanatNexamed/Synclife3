@@ -973,7 +973,7 @@
   const CONFIG = {
     logoUrl: "",
     submitEndpoint: "https://synclife.app.n8n.cloud/webhook/99e692d1-38ba-4db4-9b5f-8a509d8ecd11",
-    saveDraftEndpoint: "",
+    saveDraftEndpoint: "https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/2361bb28-5de4-4ed2-9d8a-32e8f58ffb53",
     redirectUrl: "",
     consentVersion: "2026.07",
     debug: false
@@ -1203,6 +1203,49 @@
     return data;
   }
 
+  // --- LOCALSTORAGE DRAFT MANAGEMENT ---
+  function saveLocalDraft() {
+    try {
+      const data = payloadFromForm();
+      localStorage.setItem('sync_life_intake_draft', JSON.stringify({
+        data: data,
+        currentStep: currentStep,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (e) {
+      if (CONFIG.debug) console.error("Error saving local draft", e);
+    }
+  }
+
+  function loadLocalDraft() {
+    const saved = localStorage.getItem('sync_life_intake_draft');
+    if (!saved) return;
+    try {
+      const { data, currentStep: savedStep } = JSON.parse(saved);
+      if (data) {
+        Object.keys(data).forEach(key => {
+          const fields = form.querySelectorAll(`[name="${CSS.escape(key)}"]`);
+          if (!fields.length) return;
+          fields.forEach(field => {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+              const valArray = (data[key] || '').split(', ');
+              if (valArray.includes(field.value)) {
+                field.checked = true;
+              }
+            } else {
+              field.value = data[key];
+            }
+          });
+        });
+      }
+      if (typeof savedStep === 'number' && savedStep < steps.length) {
+        currentStep = savedStep;
+      }
+    } catch (e) {
+      if (CONFIG.debug) console.error("Error loading local draft", e);
+    }
+  }
+
   function buildReview() {
     const data = payloadFromForm();
     const sections = [
@@ -1237,7 +1280,6 @@
         body: JSON.stringify(payload)
       });
     } catch (e) {
-      // Fallback for strict browser CORS when testing on localhost
       await fetch(url, {
         method: "POST",
         mode: "no-cors",
@@ -1284,13 +1326,19 @@
     setConditionalState();
   });
   
-  form.addEventListener("input", setConditionalState);
+  form.addEventListener("input", () => {
+    setConditionalState();
+    saveLocalDraft();
+  });
 
+  // NEXT BUTTON: Validates step, auto-saves to LocalStorage, and advances
   nextBtn.addEventListener("click", () => {
     if (!validateStep()) return;
+    saveLocalDraft();
     currentStep = Math.min(steps.length - 1, currentStep + 1);
     updateStep();
   });
+
   backBtn.addEventListener("click", () => {
     currentStep = Math.max(0, currentStep - 1);
     updateStep();
@@ -1321,25 +1369,77 @@
     }
   });
 
+  // SAVE FOR LATER BUTTON: Webhook POST + "Saved for Later" Screen
   saveBtn.addEventListener("click", async () => {
+    saveLocalDraft();
     const payload = payloadFromForm();
-    if (!CONFIG.saveDraftEndpoint) {
-      statusBox.textContent = "Secure save-for-later is not configured. Add an approved draft endpoint in CONFIG before enabling this feature.";
-      statusBox.classList.add("is-visible");
-      window.dispatchEvent(new CustomEvent("syncLifeIntakeDraftRequested", { detail: payload }));
-      return;
-    }
+    payload.draft_step = currentStep;
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "SAVING…";
+
     try {
-      saveBtn.disabled = true;
-      await postJson(CONFIG.saveDraftEndpoint, payload);
-      statusBox.textContent = "Your progress was saved securely.";
-      statusBox.classList.add("is-visible");
+      if (CONFIG.saveDraftEndpoint) {
+        await postJson(CONFIG.saveDraftEndpoint, payload);
+      }
+
+      // Hide form and top indicators
+      form.hidden = true;
+      
+      const progressMeta = document.querySelector(".sync-progress");
+      if (progressMeta) progressMeta.hidden = true;
+      
+      const headerMeta = document.querySelector(".sync-header-meta");
+      if (headerMeta) headerMeta.hidden = true;
+
+      const shell = document.querySelector(".sync-shell");
+      const footer = document.querySelector(".sync-footer");
+
+      let draftCard = document.getElementById("sync-draft-saved-card");
+      if (!draftCard) {
+        draftCard = document.createElement("div");
+        draftCard.id = "sync-draft-saved-card";
+        draftCard.style.padding = "60px 30px";
+        draftCard.style.display = "flex";
+        draftCard.style.flexDirection = "column";
+        draftCard.style.alignItems = "center";
+        draftCard.style.justifyContent = "center";
+        draftCard.style.textAlign = "center";
+        draftCard.style.width = "100%";
+
+        draftCard.innerHTML = `
+          <div style="width: 70px; height: 70px; background: #e8f7ef; color: #195f43; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 24px; font-weight: bold;">✓</div>
+          <h1 style="color: #0f4f55; margin: 0 auto 12px; max-width: 100%; font-size: 36px; text-align: center;">Information Saved!</h1>
+          <p style="font-size: 18px; color: #526568; max-width: 550px; margin: 0 auto 24px; text-align: center;">Your answers have been saved securely. You can safely close this tab and finish later, or click below to resume right now.</p>
+          <button type="button" id="sync-resume-now" class="sync-btn sync-btn-primary" style="margin: 0 auto;">RESUME FORM NOW</button>
+        `;
+
+        if (footer) {
+          shell.insertBefore(draftCard, footer);
+        } else {
+          shell.appendChild(draftCard);
+        }
+
+        document.getElementById("sync-resume-now").addEventListener("click", () => {
+          draftCard.hidden = true;
+          form.hidden = false;
+          if (progressMeta) progressMeta.hidden = false;
+          if (headerMeta) headerMeta.hidden = false;
+          updateStep();
+        });
+      } else {
+        draftCard.hidden = false;
+      }
+
+      window.scrollTo({ top: shell.offsetTop, behavior: "smooth" });
+
     } catch (error) {
-      statusBox.textContent = "We could not save your progress. Please try again.";
+      statusBox.textContent = "We could not save your progress online. Please check your connection and try again.";
       statusBox.classList.add("is-visible");
       if (CONFIG.debug) console.error(error);
     } finally {
       saveBtn.disabled = false;
+      saveBtn.textContent = "SAVE FOR LATER";
     }
   });
 
@@ -1357,6 +1457,9 @@
       if (CONFIG.submitEndpoint) {
         await postJson(CONFIG.submitEndpoint, payload);
       }
+
+      // Clear local draft on successful submission
+      localStorage.removeItem('sync_life_intake_draft');
 
       if (CONFIG.redirectUrl) {
         window.location.assign(CONFIG.redirectUrl);
@@ -1391,7 +1494,6 @@
         <p style="font-size: 14px; color: #667679; margin: 0 auto; text-align: center;">You may close this tab or window now.</p>
       `;
 
-      // Insert success message BEFORE footer so footer remains at bottom
       if (footer) {
         shell.insertBefore(successCard, footer);
       } else {
@@ -1410,6 +1512,8 @@
   });
 
   renderConditions();
+  loadLocalDraft();
+
   if (CONFIG.logoUrl) {
     const logo = document.getElementById("sync-logo");
     logo.src = CONFIG.logoUrl;
