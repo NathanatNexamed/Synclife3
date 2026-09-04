@@ -948,7 +948,6 @@
             <span>I would like to receive optional SYNC Life updates. This is not required for care.</span>
           </label>
         </div>
-        <div id="submission-message" class="sync-alert sync-alert-success" hidden></div>
       </section>
 
       <div class="sync-actions">
@@ -1347,25 +1346,55 @@
   form.addEventListener("submit", async event => {
     event.preventDefault();
     if (!validateStep()) return;
-    const payload = payloadFromForm();
-    document.getElementById("submitted_at").value = payload.submitted_at;
+
+    // Instantly disable button to prevent double clicks during network request
     submitBtn.disabled = true;
     submitBtn.textContent = "SUBMITTING…";
+
+    const payload = payloadFromForm();
+    document.getElementById("submitted_at").value = payload.submitted_at;
+
     try {
       if (CONFIG.submitEndpoint) {
         await postJson(CONFIG.submitEndpoint, payload);
       }
-      const message = document.getElementById("submission-message");
-      message.innerHTML = "<strong>Your intake is ready.</strong><br>Your information has been sent successfully.";
-      message.hidden = false;
-      if (CONFIG.redirectUrl) window.location.assign(CONFIG.redirectUrl);
+
+      // If a redirect URL is specified (e.g. GHL Consent Forms), forward them immediately
+      if (CONFIG.redirectUrl) {
+        window.location.assign(CONFIG.redirectUrl);
+        return;
+      }
+
+      // Otherwise, hide the form and show a full-screen confirmation card
+      form.hidden = true;
+      
+      const progressMeta = document.querySelector(".sync-progress");
+      if (progressMeta) progressMeta.hidden = true;
+      
+      const headerMeta = document.querySelector(".sync-header-meta");
+      if (headerMeta) headerMeta.hidden = true;
+
+      const shell = document.querySelector(".sync-shell");
+      
+      const successCard = document.createElement("div");
+      successCard.style.padding = "60px 30px";
+      successCard.style.textAlign = "center";
+      successCard.innerHTML = `
+        <div style="width: 70px; height: 70px; background: #e8f7ef; color: #195f43; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 24px; font-weight: bold;">✓</div>
+        <h1 style="color: #0f4f55; margin-bottom: 12px; font-size: 36px;">Intake Submitted Successfully!</h1>
+        <p style="font-size: 18px; color: #526568; max-width: 550px; margin: 0 auto 24px;">Thank you, <strong>${escapeHtml(payload.first_name)}</strong>. Your health intake form has been securely transmitted to our clinical team at SYNC Life.</p>
+        <p style="font-size: 14px; color: #667679;">You may close this tab or window now.</p>
+      `;
+
+      shell.appendChild(successCard);
+      window.scrollTo({ top: shell.offsetTop, behavior: "smooth" });
+
     } catch (error) {
       statusBox.textContent = "Your intake could not be submitted. Please check your connection and try again.";
       statusBox.classList.add("is-visible");
-      if (CONFIG.debug) console.error(error);
-    } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "SUBMIT INTAKE";
+      if (CONFIG.debug) console.error(error);
     }
   });
 
