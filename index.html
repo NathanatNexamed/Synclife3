@@ -1253,7 +1253,7 @@
           <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
           <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
         </div>
-        <div class="sync-legal-document" aria-label="HIPAA Notice of Privacy Practices">
+        <div class="sync-legal-document" id="hipaa-legal-document" aria-label="HIPAA Notice of Privacy Practices">
           <p><strong>THIS NOTICE DESCRIBES HOW MEDICAL INFORMATION ABOUT YOU MAY BE USED AND DISCLOSED AND HOW YOU CAN GET ACCESS TO THIS INFORMATION. PLEASE REVIEW IT CAREFULLY.</strong></p>
           <h3>I. Our Commitment to Your Privacy</h3>
           <p>At SYNC Life, we are committed to maintaining the privacy and confidentiality of your Protected Health Information (PHI). PHI includes individually identifiable health information created, received, or maintained by us relating to your physical or mental health, healthcare services provided to you, or payment for healthcare services.</p>
@@ -1308,7 +1308,7 @@
           <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
           <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
         </div>
-        <div class="sync-legal-document">
+        <div class="sync-legal-document" id="general-consent-legal-document">
           <p>This consent provides us with your permission to perform reasonable and necessary medical examinations, testing and treatment. By signing below, you are indicating that:</p>
           <ol><li>You consent to treatment at this office (or any other satellite office under common ownership).</li><li>You intend this consent to remain effective after a specific diagnosis has been made and treatment recommended.</li></ol>
           <p>You have the right at any time to discontinue services. You have the right to discuss the treatment plan with your physician, including the purpose, potential risks, and benefits of any test, treatment, or recommended course of action. If you have any concerns regarding any test or treatment recommend by your health care provider, we encourage you to ask questions.</p>
@@ -1348,7 +1348,7 @@
           <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
           <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
         </div>
-        <div class="sync-legal-document">
+        <div class="sync-legal-document" id="telehealth-legal-document">
           <p>For convenience of accessing care, our clinic offers remote telehealth consultations between patients and clinicians via a secure video platform. Additionally, your healthcare provider may consult with other providers or specialists remotely about your care via video or phone. Please carefully review this form and indicate your acceptance below.</p>
           <h3>Potential benefits of telehealth include:</h3>
           <ul><li>Convenience in accessing your providers from your home or another location.</li><li>Protection against the transmission of communicable illnesses between yourself and other patients and clinic staff.</li><li>Improvements to the quality of care when your clinician can consult with other providers as needed.</li></ul>
@@ -1410,6 +1410,8 @@
     </footer>
   </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script>
 (() => {
@@ -1693,6 +1695,9 @@
     data.page_url = location.href.split("?")[0];
     data.submission_kind = "intake_and_consents";
     data.document_packet_version = CONFIG.documentPacketVersion;
+    data.submission_id = data.draft_id;
+    data.client_user_agent = navigator.userAgent || "";
+    data.client_timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
 
     const sex = data.sex_at_birth || "";
     const patientName = [data.first_name, data.last_name].filter(Boolean).join(" ");
@@ -1742,6 +1747,7 @@
         }
       ],
       generate_pdfs: true,
+      pdf_generation_method: "browser_pdf_lib",
       target_system: "cerbo"
     };
 
@@ -1874,6 +1880,467 @@
     }
   }
 
+
+  // ============================================================
+  // PDF GENERATION + SAME-WEBHOOK MULTIPART SUBMISSION
+  // ============================================================
+  // The patient stays on this page. pdf-lib creates the PDFs in the
+  // browser, then the PDFs + the intake JSON are sent together to the
+  // existing n8n webhook as multipart/form-data.
+
+  function assertPdfLibLoaded() {
+    if (!window.PDFLib) {
+      throw new Error("PDF library did not load. Check the pdf-lib script tag or network connection.");
+    }
+  }
+
+  function pdfSafeText(value) {
+    return String(value ?? "")
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/\u2022/g, "-")
+      .replace(/\u00A0/g, " ")
+      .replace(/\u2192/g, "->")
+      .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, " ")
+      .replace(/[ \t]+/g, " ")
+      .trim();
+  }
+
+  function formatPdfDate(value) {
+    if (!value) return "";
+    const d = new Date(value.includes("T") ? value : `${value}T12:00:00`);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
+  }
+
+  function formatPdfDateTime(value) {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString("en-US", {
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      timeZoneName: "short"
+    });
+  }
+
+  async function createPdfWriter(title, subtitle = "") {
+    assertPdfLibLoaded();
+    const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
+    const pdfDoc = await PDFDocument.create();
+    const regular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const italic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+    const pageWidth = 612;
+    const pageHeight = 792;
+    const margin = 52;
+    const contentWidth = pageWidth - margin * 2;
+    let page;
+    let y;
+
+    const colors = {
+      teal: rgb(15 / 255, 79 / 255, 85 / 255),
+      ink: rgb(36 / 255, 54 / 255, 56 / 255),
+      muted: rgb(102 / 255, 118 / 255, 121 / 255),
+      line: rgb(217 / 255, 229 / 255, 225 / 255)
+    };
+
+    function wrapText(text, font, size, maxWidth) {
+      const clean = pdfSafeText(text);
+      if (!clean) return [""];
+      const paragraphs = clean.split(/\n+/);
+      const lines = [];
+      paragraphs.forEach((paragraph, paragraphIndex) => {
+        const words = paragraph.split(/\s+/).filter(Boolean);
+        let line = "";
+        words.forEach(word => {
+          const candidate = line ? `${line} ${word}` : word;
+          if (font.widthOfTextAtSize(candidate, size) <= maxWidth) {
+            line = candidate;
+          } else {
+            if (line) lines.push(line);
+            if (font.widthOfTextAtSize(word, size) <= maxWidth) {
+              line = word;
+            } else {
+              let chunk = "";
+              [...word].forEach(char => {
+                const test = chunk + char;
+                if (font.widthOfTextAtSize(test, size) <= maxWidth) chunk = test;
+                else {
+                  if (chunk) lines.push(chunk);
+                  chunk = char;
+                }
+              });
+              line = chunk;
+            }
+          }
+        });
+        if (line) lines.push(line);
+        if (paragraphIndex < paragraphs.length - 1) lines.push("");
+      });
+      return lines.length ? lines : [""];
+    }
+
+    function addPage() {
+      page = pdfDoc.addPage([pageWidth, pageHeight]);
+      y = pageHeight - margin;
+      page.drawText("SYNC LIFE", { x: margin, y, size: 11, font: bold, color: colors.teal });
+      page.drawText("17650 Highland Rd, Ste E | Baton Rouge, LA 70810 | 225.425.7962", {
+        x: margin, y: y - 15, size: 7.5, font: regular, color: colors.muted
+      });
+      y -= 34;
+      page.drawLine({ start: { x: margin, y }, end: { x: pageWidth - margin, y }, thickness: 0.75, color: colors.line });
+      y -= 22;
+    }
+
+    function ensureSpace(required = 40) {
+      if (!page || y - required < margin + 24) addPage();
+    }
+
+    function drawWrapped(text, opts = {}) {
+      const size = opts.size ?? 10;
+      const font = opts.font ?? regular;
+      const color = opts.color ?? colors.ink;
+      const lineHeight = opts.lineHeight ?? size * 1.35;
+      const indent = opts.indent ?? 0;
+      const after = opts.after ?? 6;
+      const maxWidth = contentWidth - indent;
+      const lines = wrapText(text, font, size, maxWidth);
+      for (const line of lines) {
+        ensureSpace(lineHeight + 4);
+        if (line) page.drawText(line, { x: margin + indent, y, size, font, color });
+        y -= lineHeight;
+      }
+      y -= after;
+    }
+
+    function heading(text, level = 2) {
+      const size = level === 1 ? 18 : level === 2 ? 13 : 11;
+      const after = level === 1 ? 12 : 7;
+      ensureSpace(size * 2.2);
+      drawWrapped(text, { size, font: bold, color: colors.teal, lineHeight: size * 1.2, after });
+    }
+
+    function paragraph(text, opts = {}) {
+      drawWrapped(text, { size: opts.size ?? 9.5, font: opts.bold ? bold : opts.italic ? italic : regular, after: opts.after ?? 7, indent: opts.indent ?? 0 });
+    }
+
+    function bullet(text, number = null) {
+      const prefix = number === null ? "- " : `${number}. `;
+      drawWrapped(prefix + text, { size: 9.3, indent: 12, after: 3 });
+    }
+
+    function keyValue(label, value) {
+      const cleanValue = pdfSafeText(value || "");
+      if (!cleanValue) return;
+      ensureSpace(30);
+      drawWrapped(`${label}: ${cleanValue}`, { size: 9.3, after: 4 });
+    }
+
+    function section(titleText) {
+      y -= 3;
+      heading(titleText, 2);
+    }
+
+    async function signature(dataUrl, label, signedAt, extraLines = []) {
+      ensureSpace(155);
+      heading(label, 2);
+      if (dataUrl) {
+        const bytes = await (await fetch(dataUrl)).arrayBuffer();
+        const image = await pdfDoc.embedPng(bytes);
+        const maxW = 250;
+        const maxH = 72;
+        const scale = Math.min(maxW / image.width, maxH / image.height, 1);
+        const width = Math.max(120, image.width * scale);
+        const height = Math.max(35, image.height * scale);
+        page.drawRectangle({ x: margin, y: y - height - 6, width: Math.min(width + 18, 280), height: height + 14, borderWidth: 0.75, borderColor: colors.line });
+        page.drawImage(image, { x: margin + 8, y: y - height, width, height });
+        y -= height + 26;
+      } else {
+        paragraph("No signature image was captured.");
+      }
+      keyValue("Signed", formatPdfDateTime(signedAt));
+      extraLines.forEach(([k, v]) => keyValue(k, v));
+      y -= 6;
+    }
+
+    function start() {
+      addPage();
+      heading(title, 1);
+      if (subtitle) paragraph(subtitle, { size: 9, italic: true, after: 12 });
+    }
+
+    async function finish() {
+      const pages = pdfDoc.getPages();
+      pages.forEach((p, index) => {
+        const footer = `Page ${index + 1} of ${pages.length}`;
+        p.drawLine({ start: { x: margin, y: 34 }, end: { x: pageWidth - margin, y: 34 }, thickness: 0.5, color: colors.line });
+        p.drawText(footer, { x: pageWidth - margin - regular.widthOfTextAtSize(footer, 7.5), y: 20, size: 7.5, font: regular, color: colors.muted });
+      });
+      const bytes = await pdfDoc.save();
+      return new Blob([bytes], { type: "application/pdf" });
+    }
+
+    return { start, heading, paragraph, bullet, keyValue, section, signature, finish };
+  }
+
+  function elementOwnLabelText(field) {
+    const label = field.closest("label");
+    if (!label) return "";
+    const clone = label.cloneNode(true);
+    clone.querySelectorAll("input, select, textarea, button, canvas").forEach(el => el.remove());
+    return pdfSafeText(clone.textContent).replace(/\s*\*\s*$/, "");
+  }
+
+  function fieldsetLegend(field) {
+    const fieldset = field.closest("fieldset");
+    const legend = fieldset?.querySelector("legend");
+    return legend ? pdfSafeText(legend.textContent).replace(/\s*\*\s*$/, "") : "";
+  }
+
+  function prettyFieldName(name) {
+    return String(name || "")
+      .replace(/\[\]/g, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function collectStepAnswers(title) {
+    const step = [...document.querySelectorAll(".sync-step")].find(el => el.dataset.title === title);
+    if (!step) return [];
+    const controls = [...step.querySelectorAll("input, select, textarea")]
+      .filter(field => field.type !== "hidden" && !field.disabled && !field.closest("[hidden]"));
+    const names = [...new Set(controls.map(field => field.name).filter(Boolean))];
+    const answers = [];
+
+    names.forEach(name => {
+      const group = controls.filter(field => field.name === name);
+      if (!group.length) return;
+      const first = group[0];
+      if (["checkbox", "radio"].includes(first.type)) {
+        const checked = group.filter(field => field.checked);
+        if (!checked.length) return;
+        const question = fieldsetLegend(first) || prettyFieldName(name);
+        const values = checked.map(field => elementOwnLabelText(field) || field.value).filter(Boolean);
+        answers.push([question, values.join(", ")]);
+        return;
+      }
+      const values = group.map(field => {
+        if (field.tagName === "SELECT") return field.value;
+        return field.value?.trim?.() ?? field.value;
+      }).filter(Boolean);
+      if (!values.length) return;
+      const question = elementOwnLabelText(first) || fieldsetLegend(first) || prettyFieldName(name);
+      answers.push([question, values.join(", ")]);
+    });
+    return answers;
+  }
+
+  function legalBlocks(elementId) {
+    const host = document.getElementById(elementId);
+    if (!host) return [];
+    const blocks = [];
+    [...host.children].forEach(child => {
+      const tag = child.tagName;
+      if (["H1", "H2", "H3", "H4"].includes(tag)) {
+        blocks.push({ type: "heading", level: tag === "H3" ? 2 : 3, text: child.textContent });
+      } else if (tag === "P") {
+        blocks.push({ type: "paragraph", text: child.textContent });
+      } else if (tag === "UL" || tag === "OL") {
+        [...child.querySelectorAll(":scope > li")].forEach((li, index) => {
+          blocks.push({ type: tag === "OL" ? "number" : "bullet", number: index + 1, text: li.textContent });
+        });
+      }
+    });
+    return blocks;
+  }
+
+  async function generateConsentPdf({ title, subtitle, legalElementId, acknowledgment, signatureDataUrl, signedAt, payload, extraSignatureLines = [] }) {
+    const writer = await createPdfWriter(title, subtitle);
+    writer.start();
+    writer.section("Patient Information");
+    writer.keyValue("Patient", [payload.first_name, payload.last_name].filter(Boolean).join(" "));
+    writer.keyValue("Date of Birth", formatPdfDate(payload.date_of_birth));
+    writer.keyValue("Date", formatPdfDate(signedAt || payload.submitted_at));
+    writer.keyValue("Submission ID", payload.submission_id || payload.draft_id || "");
+
+    writer.section("Document");
+    for (const block of legalBlocks(legalElementId)) {
+      if (block.type === "heading") writer.heading(block.text, block.level);
+      else if (block.type === "paragraph") writer.paragraph(block.text);
+      else if (block.type === "bullet") writer.bullet(block.text);
+      else if (block.type === "number") writer.bullet(block.text, block.number);
+    }
+
+    writer.section("Acknowledgment");
+    writer.paragraph(acknowledgment, { bold: true });
+    await writer.signature(signatureDataUrl, "Electronic Signature", signedAt, extraSignatureLines);
+    writer.paragraph("This document was generated electronically from the SYNC Life patient intake and consent workflow.", { size: 8.5, italic: true });
+    return writer.finish();
+  }
+
+  async function generateHormoneIntakePdf(payload) {
+    const sex = payload.sex_at_birth === "female" ? "Female" : "Male";
+    const writer = await createPdfWriter(`Initial Hormone Therapy Intake (${sex})`, "Generated from the integrated SYNC Life patient intake workflow.");
+    writer.start();
+
+    writer.section("Basic Contact Information");
+    writer.keyValue("Name", [payload.first_name, payload.last_name].filter(Boolean).join(" "));
+    writer.keyValue("Date of Birth", formatPdfDate(payload.date_of_birth));
+    writer.keyValue("Phone", payload.phone);
+    writer.keyValue("Email", payload.email);
+    writer.keyValue("Home Address", [payload.address_1, payload.address_2, payload.city, payload.state, payload.zip_code].filter(Boolean).join(", "));
+    writer.keyValue("Emergency Contact", [payload.emergency_contact_name, payload.emergency_contact_phone].filter(Boolean).join(" - "));
+    writer.keyValue("Height", [payload.height_feet ? `${payload.height_feet} ft` : "", payload.height_inches ? `${payload.height_inches} in` : ""].filter(Boolean).join(" "));
+    writer.keyValue("Current Weight", payload.current_weight);
+
+    const sharedSections = ["Medical history", "Hormone health", "Medications", "Nutrition", "Lifestyle"];
+    for (const sectionTitle of sharedSections) {
+      const answers = collectStepAnswers(sectionTitle);
+      if (!answers.length) continue;
+      writer.section(sectionTitle);
+      answers.forEach(([question, value]) => writer.keyValue(question, value));
+    }
+
+    const sexTitle = sex === "Female" ? "Female hormone intake" : "Male hormone intake";
+    const sexAnswers = collectStepAnswers(sexTitle);
+    if (sexAnswers.length) {
+      writer.section(`${sex} Hormone-Specific Questions`);
+      sexAnswers.forEach(([question, value]) => writer.keyValue(question, value));
+    }
+
+    writer.section("Submission Record");
+    writer.keyValue("Submission ID", payload.submission_id || payload.draft_id || "");
+    writer.keyValue("Submitted", formatPdfDateTime(payload.submitted_at));
+    writer.keyValue("Form Version", payload.form_version);
+    writer.paragraph("The separate HIPAA, General Consent to Treatment, and Telehealth Consent PDFs contain the patient's electronic signatures.", { size: 8.5, italic: true });
+    return writer.finish();
+  }
+
+  async function sha256Blob(blob) {
+    if (!window.crypto?.subtle) return "";
+    const digest = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+    return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function generateSignedPdfPacket(payload) {
+    const patientName = [payload.first_name, payload.last_name].filter(Boolean).join(" ") || "Patient";
+    const cleanName = patientName.replace(/[^a-zA-Z0-9 _-]/g, "").trim().replace(/\s+/g, "_") || "Patient";
+    const sexLabel = payload.sex_at_birth === "female" ? "Female" : "Male";
+
+    const hormone = await generateHormoneIntakePdf(payload);
+    const hipaa = await generateConsentPdf({
+      title: "HIPAA Notice of Privacy Practices",
+      subtitle: "Effective Date: February 16, 2026",
+      legalElementId: "hipaa-legal-document",
+      acknowledgment: "I acknowledge that I have reviewed the SYNC Life HIPAA Notice of Privacy Practices.",
+      signatureDataUrl: payload.hipaa_signature_data_url,
+      signedAt: payload.hipaa_signed_at,
+      payload
+    });
+    const general = await generateConsentPdf({
+      title: "General Consent to Treatment",
+      subtitle: "Patient consent for reasonable and necessary medical examinations, testing, and treatment.",
+      legalElementId: "general-consent-legal-document",
+      acknowledgment: "I certify that I have read and understand the statements above and consent fully and voluntarily.",
+      signatureDataUrl: payload.general_consent_signature_data_url,
+      signedAt: payload.general_consent_signed_at,
+      payload,
+      extraSignatureLines: [
+        ["Signing Capacity", payload.signing_capacity === "legal_representative" ? "Legal representative" : "Patient / self"],
+        ["Relation to Patient", payload.legal_representative_relationship || ""]
+      ]
+    });
+    const telehealth = await generateConsentPdf({
+      title: "Telehealth Consent Form",
+      subtitle: "Consent to the use of telehealth in the course of diagnosis and treatment.",
+      legalElementId: "telehealth-legal-document",
+      acknowledgment: "I give my informed consent to the use of telehealth in the course of my diagnosis and treatment.",
+      signatureDataUrl: payload.telehealth_signature_data_url,
+      signedAt: payload.telehealth_signed_at,
+      payload
+    });
+
+    const files = {
+      hormone_intake_pdf: {
+        blob: hormone,
+        filename: `${cleanName}_Initial_Hormone_Therapy_Intake_${sexLabel}.pdf`
+      },
+      hipaa_pdf: {
+        blob: hipaa,
+        filename: `${cleanName}_HIPAA_Notice.pdf`
+      },
+      general_consent_pdf: {
+        blob: general,
+        filename: `${cleanName}_General_Consent.pdf`
+      },
+      telehealth_pdf: {
+        blob: telehealth,
+        filename: `${cleanName}_Telehealth_Consent.pdf`
+      }
+    };
+
+    for (const file of Object.values(files)) {
+      file.sha256 = await sha256Blob(file.blob);
+    }
+    return files;
+  }
+
+  function clonePayloadForWebhook(payload, pdfFiles) {
+    const safe = JSON.parse(JSON.stringify(payload));
+
+    // PDFs contain the signatures. Avoid also sending large base64 signature images
+    // inside the JSON body, which would unnecessarily inflate the webhook payload.
+    [
+      "hipaa_signature_data_url",
+      "general_consent_signature_data_url",
+      "telehealth_signature_data_url"
+    ].forEach(key => delete safe[key]);
+
+    if (safe.document_packet?.consents) {
+      safe.document_packet.consents.forEach(consent => delete consent.signature_data_url);
+    }
+
+    safe.document_packet = safe.document_packet || {};
+    safe.document_packet.pdf_generation_method = "browser_pdf_lib";
+    safe.document_packet.generated_documents = Object.entries(pdfFiles).map(([field, file]) => ({
+      multipart_field: field,
+      filename: file.filename,
+      mime_type: "application/pdf",
+      sha256: file.sha256 || ""
+    }));
+    return safe;
+  }
+
+  async function postMultipart(url, payload, pdfFiles) {
+    const body = new FormData();
+    const safePayload = clonePayloadForWebhook(payload, pdfFiles);
+
+    // Keep the existing intake fields available individually so the current
+    // n8n SOAP-note branch can keep using first_name, last_name, health_story,
+    // etc. The full JSON is also included for easier parsing/versioning.
+    Object.entries(safePayload).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      body.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
+    });
+    body.append("payload_json", JSON.stringify(safePayload));
+
+    Object.entries(pdfFiles).forEach(([field, file]) => {
+      body.append(field, file.blob, file.filename);
+    });
+
+    // Do not manually set Content-Type. The browser must add the multipart boundary.
+    const response = await fetch(url, {
+      method: "POST",
+      body
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook returned HTTP ${response.status}`);
+    }
+    return response;
+  }
 
   function formatDisplayDate(date = new Date()) {
     return date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
@@ -2161,37 +2628,45 @@
     if (!validateStep()) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "SUBMITTING…";
+    submitBtn.textContent = "GENERATING SIGNED PDFS...";
+    statusBox.textContent = "Generating your signed documents securely in this browser...";
+    statusBox.classList.add("is-visible");
 
     const payload = payloadFromForm();
     document.getElementById("submitted_at").value = payload.submitted_at;
 
     try {
+      // 1) Generate all four PDFs locally in the patient's browser.
+      const pdfFiles = await generateSignedPdfPacket(payload);
+
+      // 2) Send the original intake JSON + all four PDF binaries to the SAME n8n webhook.
+      submitBtn.textContent = "SUBMITTING TO SYNC LIFE...";
+      statusBox.textContent = "Uploading your intake and signed documents securely...";
+
       if (CONFIG.submitEndpoint) {
-        await postJson(CONFIG.submitEndpoint, payload);
+        await postMultipart(CONFIG.submitEndpoint, payload, pdfFiles);
       }
 
-      // Clear local draft and session draft_id on successful submission
-      localStorage.removeItem('sync_life_intake_draft');
-      localStorage.removeItem('sync_life_draft_id');
+      // Clear local draft/session IDs only after n8n returns a successful HTTP response.
+      localStorage.removeItem("sync_life_intake_draft");
+      localStorage.removeItem("sync_life_draft_id");
 
       if (CONFIG.redirectUrl) {
         window.location.assign(CONFIG.redirectUrl);
         return;
       }
 
-      // Hide the form and top indicators
       form.hidden = true;
-      
+      statusBox.classList.remove("is-visible");
+
       const progressMeta = document.querySelector(".sync-progress");
       if (progressMeta) progressMeta.hidden = true;
-      
+
       const headerMeta = document.querySelector(".sync-header-meta");
       if (headerMeta) headerMeta.hidden = true;
 
       const shell = document.querySelector(".sync-shell");
       const footer = document.querySelector(".sync-footer");
-      
       const successCard = document.createElement("div");
       successCard.style.padding = "60px 30px";
       successCard.style.display = "flex";
@@ -2200,28 +2675,24 @@
       successCard.style.justifyContent = "center";
       successCard.style.textAlign = "center";
       successCard.style.width = "100%";
-      
+
       successCard.innerHTML = `
         <div style="width: 70px; height: 70px; background: #e8f7ef; color: #195f43; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 24px; font-weight: bold;">✓</div>
         <h1 style="color: #0f4f55; margin: 0 auto 12px; max-width: 100%; font-size: 36px; text-align: center;">Intake & Consents Submitted Successfully!</h1>
-        <p style="font-size: 18px; color: #526568; max-width: 550px; margin: 0 auto 24px; text-align: center;">Thank you, <strong>${escapeHtml(payload.first_name)}</strong>. Your intake information and signed consent packet have been transmitted to our clinical workflow for processing.</p>
+        <p style="font-size: 18px; color: #526568; max-width: 620px; margin: 0 auto 24px; text-align: center;">Thank you, <strong>${escapeHtml(payload.first_name)}</strong>. Your intake information and four PDF documents were sent to the SYNC Life workflow for processing.</p>
         <p style="font-size: 14px; color: #667679; margin: 0 auto; text-align: center;">You may close this tab or window now.</p>
       `;
 
-      if (footer) {
-        shell.insertBefore(successCard, footer);
-      } else {
-        shell.appendChild(successCard);
-      }
+      if (footer) shell.insertBefore(successCard, footer);
+      else shell.appendChild(successCard);
 
       window.scrollTo({ top: shell.offsetTop, behavior: "smooth" });
-
     } catch (error) {
-      statusBox.textContent = "Your intake could not be submitted. Please check your connection and try again.";
+      console.error("Final submission error:", error);
+      statusBox.textContent = `Your intake could not be submitted. ${error?.message || "Please check your connection and try again."}`;
       statusBox.classList.add("is-visible");
       submitBtn.disabled = false;
       submitBtn.textContent = "SUBMIT INTAKE & CONSENTS";
-      if (CONFIG.debug) console.error(error);
     }
   });
 
