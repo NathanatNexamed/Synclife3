@@ -1882,11 +1882,11 @@
 
 
   // ============================================================
-  // PDF GENERATION + SAME-WEBHOOK MULTIPART SUBMISSION
+  // PDF GENERATION + SAME-WEBHOOK JSON/BASE64 SUBMISSION
   // ============================================================
   // The patient stays on this page. pdf-lib creates the PDFs in the
-  // browser, then the PDFs + the intake JSON are sent together to the
-  // existing n8n webhook as multipart/form-data.
+  // browser, converts them to Base64, and sends the intake + PDFs to the
+  // existing n8n webhook as one application/json request.
 
   function assertPdfLibLoaded() {
     if (!window.PDFLib) {
@@ -2287,11 +2287,28 @@
     return files;
   }
 
-  function clonePayloadForWebhook(payload, pdfFiles) {
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const commaIndex = result.indexOf(",");
+        if (commaIndex === -1) {
+          reject(new Error("Could not convert generated PDF to Base64."));
+          return;
+        }
+        resolve(result.slice(commaIndex + 1));
+      };
+      reader.onerror = () => reject(reader.error || new Error("Could not read generated PDF."));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function buildJsonPayloadWithDocuments(payload, pdfFiles) {
     const safe = JSON.parse(JSON.stringify(payload));
 
-    // PDFs contain the signatures. Avoid also sending large base64 signature images
-    // inside the JSON body, which would unnecessarily inflate the webhook payload.
+    // The signed PDFs already contain the handwritten signatures. Removing the
+    // canvas data URLs avoids sending the same signature images twice.
     [
       "hipaa_signature_data_url",
       "general_consent_signature_data_url",
@@ -2302,43 +2319,53 @@
       safe.document_packet.consents.forEach(consent => delete consent.signature_data_url);
     }
 
+    safe.documents = {};
+
+    for (const [field, file] of Object.entries(pdfFiles)) {
+      safe.documents[field] = {
+        fileName: file.filename,
+        mimeType: "application/pdf",
+        base64: await blobToBase64(file.blob),
+        sha256: file.sha256 || ""
+      };
+    }
+
     safe.document_packet = safe.document_packet || {};
     safe.document_packet.pdf_generation_method = "browser_pdf_lib";
-    safe.document_packet.generated_documents = Object.entries(pdfFiles).map(([field, file]) => ({
-      multipart_field: field,
-      filename: file.filename,
-      mime_type: "application/pdf",
-      sha256: file.sha256 || ""
+    safe.document_packet.transport = "json_base64";
+    safe.document_packet.generated_documents = Object.entries(safe.documents).map(([field, file]) => ({
+      document_key: field,
+      filename: file.fileName,
+      mime_type: file.mimeType,
+      sha256: file.sha256 || "",
+      json_path: `documents.${field}.base64`
     }));
+
     return safe;
   }
 
-  async function postMultipart(url, payload, pdfFiles) {
-    const body = new FormData();
-    const safePayload = clonePayloadForWebhook(payload, pdfFiles);
-
-    // Keep the existing intake fields available individually so the current
-    // n8n SOAP-note branch can keep using first_name, last_name, health_story,
-    // etc. The full JSON is also included for easier parsing/versioning.
-    Object.entries(safePayload).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      body.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
-    });
-    body.append("payload_json", JSON.stringify(safePayload));
-
-    Object.entries(pdfFiles).forEach(([field, file]) => {
-      body.append(field, file.blob, file.filename);
-    });
-
-    // Do not manually set Content-Type. The browser must add the multipart boundary.
+  async function postJsonStrict(url, payload) {
     const response = await fetch(url, {
       method: "POST",
-      body
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      throw new Error(`Webhook returned HTTP ${response.status}`);
+      let detail = "";
+      try {
+        detail = (await response.text()).trim();
+      } catch (_) {
+        // Ignore response-body read failures.
+      }
+
+      const suffix = detail ? `: ${detail.slice(0, 300)}` : "";
+      throw new Error(`Webhook returned HTTP ${response.status}${suffix}`);
     }
+
     return response;
   }
 
@@ -2639,12 +2666,17 @@
       // 1) Generate all four PDFs locally in the patient's browser.
       const pdfFiles = await generateSignedPdfPacket(payload);
 
-      // 2) Send the original intake JSON + all four PDF binaries to the SAME n8n webhook.
+      // 2) Convert the generated PDFs to Base64 and attach them to the JSON payload.
+      submitBtn.textContent = "PREPARING SIGNED DOCUMENTS...";
+      statusBox.textContent = "Preparing your signed documents for secure submission...";
+      const webhookPayload = await buildJsonPayloadWithDocuments(payload, pdfFiles);
+
+      // 3) Send one normal JSON request to the SAME n8n webhook.
       submitBtn.textContent = "SUBMITTING TO SYNC LIFE...";
       statusBox.textContent = "Uploading your intake and signed documents securely...";
 
       if (CONFIG.submitEndpoint) {
-        await postMultipart(CONFIG.submitEndpoint, payload, pdfFiles);
+        await postJsonStrict(CONFIG.submitEndpoint, webhookPayload);
       }
 
       // Clear local draft/session IDs only after n8n returns a successful HTTP response.
