@@ -161,6 +161,57 @@
       .sync-btn-ghost { order: 3; flex-basis: 100%; }
       .sync-review-section dl { grid-template-columns: 1fr; gap: 2px; }
     }
+  
+
+    /* Integrated hormone packet + consent documents */
+    .sync-packet-note {
+      margin: 0 0 28px; padding: 18px 20px; border: 1px solid var(--line);
+      border-radius: 14px; background: #f7fbf9; color: #526568;
+    }
+    .sync-packet-note strong { color: var(--midnight); }
+    .sync-legal-document {
+      max-height: 460px; overflow: auto; margin: 0 0 26px; padding: 24px;
+      border: 1px solid var(--line); border-radius: 16px; background: #fbfdfc;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .sync-legal-document h3 { margin-top: 24px; font-size: 19px; }
+    .sync-legal-document h3:first-child { margin-top: 0; }
+    .sync-legal-document h4 { margin: 20px 0 8px; color: var(--midnight); font-size: 16px; }
+    .sync-legal-document p, .sync-legal-document li { color: #425457; font-size: 14px; line-height: 1.62; }
+    .sync-legal-document ul, .sync-legal-document ol { padding-left: 22px; }
+    .sync-consent-identity {
+      display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px;
+      margin: 0 0 20px;
+    }
+    .sync-consent-identity > div {
+      padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--mist);
+    }
+    .sync-consent-identity small { display: block; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .sync-consent-identity strong { display: block; margin-top: 4px; color: var(--midnight); font-size: 16px; }
+    .sync-signature-wrap { margin-top: 20px; }
+    .sync-signature-label { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 8px; }
+    .sync-signature-label strong { color: var(--charcoal); font-size: 14px; }
+    .sync-signature-label span { color: var(--muted); font-size: 12px; }
+    .sync-signature-canvas {
+      display: block; width: 100%; height: 180px; background: #fff; border: 1.5px solid #cbdad5;
+      border-radius: 12px; touch-action: none; cursor: crosshair;
+    }
+    .sync-signature-canvas.sync-invalid { border-color: #ba3c3c !important; box-shadow: 0 0 0 3px rgba(186,60,60,.1) !important; }
+    .sync-signature-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .sync-signature-clear {
+      border: 0; background: transparent; color: var(--midnight); font: inherit; font-size: 12px;
+      font-weight: 900; letter-spacing: .05em; cursor: pointer; padding: 6px 0;
+    }
+    .sync-mini-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+    .sync-document-status { display: grid; gap: 9px; margin-top: 18px; }
+    .sync-document-status > div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdfc; }
+    .sync-document-status strong { color: var(--midnight); }
+    @media (max-width: 560px) {
+      .sync-consent-identity, .sync-mini-grid { grid-template-columns: 1fr; }
+      .sync-legal-document { max-height: 400px; padding: 18px; }
+      .sync-signature-canvas { height: 160px; }
+    }
+
   </style>
 </head>
 <body>
@@ -236,6 +287,18 @@
           <label>Email *<input type="email" name="email" autocomplete="email" required></label>
           <label>Job title<input name="job_title" autocomplete="organization-title"></label>
           <label>Nature of work<input name="nature_of_work"></label>
+        </div>
+
+        <div class="sync-subcard">
+          <h3>Home address</h3>
+          <p style="color: var(--muted); margin-bottom: 18px;">Enter this once. We will use it anywhere your clinical documents require an address.</p>
+          <div class="sync-grid sync-grid-2">
+            <label>Address 1 *<input name="address_1" autocomplete="address-line1" required></label>
+            <label>Address 2 <span class="sync-optional">(optional)</span><input name="address_2" autocomplete="address-line2"></label>
+            <label>City *<input name="city" autocomplete="address-level2" required></label>
+            <label>State *<input name="state" autocomplete="address-level1" required></label>
+            <label>ZIP code *<input name="zip_code" autocomplete="postal-code" required></label>
+          </div>
         </div>
 
         <div id="guardian-fields" class="sync-subcard" hidden>
@@ -401,6 +464,38 @@
           </div>
           <button type="button" class="sync-add" data-add-row="allergy-list">+ ADD ANOTHER ALLERGY</button>
         </div>
+
+        <div class="sync-subcard">
+          <h3>Additional allergy questions</h3>
+          <div class="sync-grid sync-grid-2">
+            <fieldset>
+              <legend>Have you ever had issues with local anesthesia?</legend>
+              <div class="sync-choice-row">
+                <label class="sync-choice"><input type="radio" name="local_anesthesia_issue" value="yes"><span>Yes</span></label>
+                <label class="sync-choice"><input type="radio" name="local_anesthesia_issue" value="no"><span>No</span></label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Do you have a latex allergy?</legend>
+              <div class="sync-choice-row">
+                <label class="sync-choice"><input type="radio" name="latex_allergy" value="yes"><span>Yes</span></label>
+                <label class="sync-choice"><input type="radio" name="latex_allergy" value="no"><span>No</span></label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend>Family history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="family_history" value="Heart Disease"><span>Heart disease</span></label>
+            <label class="sync-check"><input type="checkbox" name="family_history" value="Diabetes"><span>Diabetes</span></label>
+            <label class="sync-check"><input type="checkbox" name="family_history" value="Osteoporosis"><span>Osteoporosis</span></label>
+            <label class="sync-check"><input type="checkbox" name="family_history" value="Alzheimer's/dementia"><span>Alzheimer's / dementia</span></label>
+            <label class="sync-check"><input type="checkbox" name="family_history" value="Breast cancer"><span>Breast cancer</span></label>
+          </div>
+        </fieldset>
+        <label>Other family history <span class="sync-optional">(optional)</span><input name="family_history_other"></label>
 
         <fieldset>
           <legend>Have you had hospitalizations or surgeries?</legend>
@@ -927,6 +1022,357 @@
         </fieldset>
       </section>
 
+
+      <section class="sync-step" data-title="Male hormone intake" data-sex-step="male">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">MALE HORMONE INTAKE</p>
+          <h2>A few questions specific to male hormone care.</h2>
+          <p>We already have your basic information, medications, allergies and general health history. These are the additional questions needed for the male hormone intake document.</p>
+        </div>
+        <div class="sync-packet-note"><strong>No duplicate demographic entry.</strong> Your name, date of birth, address, phone, emergency contact, height and weight will be carried into the male hormone intake PDF automatically.</div>
+
+        <div class="sync-grid sync-grid-2">
+          <label>Last prostate check <span class="sync-optional">(if applicable)</span><input name="male_last_prostate_check" placeholder="Date or approximate timeframe"></label>
+          <label>Current birth-control / fertility details <span class="sync-optional">(optional)</span><input name="male_birth_control_other" placeholder="Other details"></label>
+        </div>
+
+        <fieldset>
+          <legend>Social history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="I am sexually active"><span>I am sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="I want to be sexually active"><span>I want to be sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="I do not want to be sexually active"><span>I do not want to be sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="My sex life has suffered"><span>My sex life has suffered</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="I have completed my family"><span>I have completed my family</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_social_history" value="I have NOT completed my family"><span>I have NOT completed my family</span></label>
+          </div>
+        </fieldset>
+
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Are you currently on a 5-alpha reductase medication?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="male_5ar_use" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="male_5ar_use" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <label id="male-5ar-detail" hidden>If yes, what type?<input name="male_5ar_type"></label>
+
+          <fieldset>
+            <legend>Are you currently taking medications for the prostate?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="male_prostate_medications" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="male_prostate_medications" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <label id="male-prostate-med-detail" hidden>If yes, what type?<input name="male_prostate_medication_type"></label>
+
+          <fieldset>
+            <legend>Are you currently taking medication for male-pattern balding?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="male_balding_medications" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="male_balding_medications" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <label id="male-balding-med-detail" hidden>If yes, what type?<input name="male_balding_medication_type"></label>
+        </div>
+
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Are you on a PDE-5 inhibitor (Cialis, Viagra, etc.)?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="male_pde5" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="male_pde5" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Are you on another testosterone-boosting medication (Clomid, HCG, etc.)?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="male_testosterone_booster" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="male_testosterone_booster" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <fieldset>
+          <legend>Birth control / fertility <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="Vasectomy"><span>Vasectomy</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="Infertility"><span>Infertility</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="None - planning pregnancy in the next year"><span>None - planning pregnancy in the next year</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="Dependent on partner's contraception"><span>Dependent on partner's contraception</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="Condoms"><span>Condoms</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_birth_control" value="Not Applicable"><span>Not applicable</span></label>
+          </div>
+        </fieldset>
+
+        <div class="sync-grid sync-grid-2">
+          <label>Have you done hormone replacement therapy in the past? If yes, explain.<textarea name="male_hrt_past" rows="3"></textarea></label>
+          <label>Are you currently doing hormone replacement therapy? If yes, explain.<textarea name="male_hrt_current" rows="3"></textarea></label>
+        </div>
+        <div class="sync-grid sync-grid-3">
+          <label>Are you currently taking statins for cholesterol?
+            <select name="male_statins"><option value="">Select</option><option>Yes</option><option>No</option></select>
+          </label>
+          <label>Are you currently taking oral nitrates? If yes, what type?<input name="male_oral_nitrates"></label>
+          <label>Are you currently taking thyroid medication? If yes, what type?<input name="male_thyroid_medication"></label>
+        </div>
+
+        <fieldset>
+          <legend>Male-specific medical / surgical history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Elevated PSA"><span>Elevated PSA</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Non-cancerous testicular or prostate surgery"><span>Non-cancerous testicular or prostate surgery</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Previous urology visit"><span>Previous urology visit</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Testicular or prostate cancer or history of these cancers"><span>Testicular or prostate cancer/history</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Polycythemia Vera (PV)"><span>Polycythemia Vera (PV)</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_specific_history" value="Prostate enlargement or BPH"><span>Prostate enlargement or BPH</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Male-specific symptoms and concerns <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Erectile Dysfunction (ED)"><span>Erectile dysfunction (ED)</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Decreased Libido"><span>Decreased libido</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Decreased Desire"><span>Decreased desire</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Inability To or Difficulty with Orgasm"><span>Inability to / difficulty with orgasm</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Trouble passing urine"><span>Trouble passing urine</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Gynecomastia"><span>Gynecomastia</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Abdominal Obesity"><span>Abdominal obesity</span></label>
+            <label class="sync-check"><input type="checkbox" name="male_packet_symptoms" value="Decrease in Strength or Endurance"><span>Decrease in strength or endurance</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="sync-step" data-title="Female hormone intake" data-sex-step="female">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">FEMALE HORMONE INTAKE</p>
+          <h2>A few questions specific to female hormone care.</h2>
+          <p>We already have your basic information, medications, allergies, menstrual information and general health history. These are the additional questions needed for the female hormone intake document.</p>
+        </div>
+        <div class="sync-packet-note"><strong>No duplicate demographic entry.</strong> Your name, date of birth, address, phone, emergency contact, height, weight, last menstrual period, Pap and mammogram information will be carried into the female hormone intake PDF automatically when available.</div>
+
+        <fieldset>
+          <legend>Social history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I am sexually active"><span>I am sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I want to be sexually active"><span>I want to be sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I do not want to be sexually active"><span>I do not want to be sexually active</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="My sex life has suffered"><span>My sex life has suffered</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I have completed my family"><span>I have completed my family</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I have NOT completed my family"><span>I have NOT completed my family</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_social_history" value="I am currently pregnant or trying to conceive"><span>I am currently pregnant or trying to conceive</span></label>
+          </div>
+        </fieldset>
+
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Have you had an endometrial ablation?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="female_endometrial_ablation" value="yes"><span>Yes</span></label>
+              <label class="sync-choice"><input type="radio" name="female_endometrial_ablation" value="no"><span>No</span></label>
+            </div>
+          </fieldset>
+          <label>Are you currently on birth control? If yes, what type?<input name="female_current_birth_control"></label>
+        </div>
+
+        <fieldset>
+          <legend>Birth control / reproductive history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Menopause"><span>Menopause</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Birth control pills"><span>Birth control pills</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Infertility"><span>Infertility</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Hysterectomy"><span>Hysterectomy</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Vasectomy"><span>Partner vasectomy</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="Tubal ligation"><span>Tubal ligation</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_birth_control" value="IUD"><span>IUD</span></label>
+          </div>
+        </fieldset>
+        <label>Other birth-control / reproductive detail <span class="sync-optional">(optional)</span><input name="female_birth_control_other"></label>
+
+        <div class="sync-grid sync-grid-2">
+          <label>Have you done hormone replacement therapy in the past? If yes, explain.<textarea name="female_hrt_past" rows="3"></textarea></label>
+          <label>Are you currently doing hormone replacement therapy? If yes, explain.<textarea name="female_hrt_current" rows="3"></textarea></label>
+        </div>
+        <div class="sync-grid sync-grid-3">
+          <label>Are you currently taking statins for cholesterol?
+            <select name="female_statins"><option value="">Select</option><option>Yes</option><option>No</option></select>
+          </label>
+          <label>Are you currently taking oral nitrates? If yes, what type?<input name="female_oral_nitrates"></label>
+          <label>Are you currently taking thyroid medication? If yes, what type?<input name="female_thyroid_medication"></label>
+        </div>
+
+        <fieldset>
+          <legend>Female-specific medical / surgical history <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Pre-Menstrual Syndrome"><span>Pre-menstrual syndrome</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Endometriosis or history of endometriosis"><span>Endometriosis / history</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Fibrocystic breasts"><span>Fibrocystic breasts</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Polyps or History of Endometrial Polyps"><span>Endometrial polyps / history</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Uterine fibroids"><span>Uterine fibroids</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Premenstrual migraines"><span>Premenstrual migraines</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Partial hysterectomy"><span>Partial hysterectomy</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Total hysterectomy"><span>Total hysterectomy</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Infertility"><span>Infertility</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Irregular or heavy periods"><span>Irregular or heavy periods</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Breast cancer"><span>Breast cancer</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Cervical cancer"><span>Cervical cancer</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Ovarian cancer"><span>Ovarian cancer</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_specific_history" value="Uterine cancer"><span>Uterine cancer</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Female-specific symptoms and concerns <span class="sync-optional">(check all that apply)</span></legend>
+          <div class="sync-choice-grid">
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Hot flashes"><span>Hot flashes</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Night sweats"><span>Night sweats</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Vaginal dryness"><span>Vaginal dryness</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Decreased interest in sex"><span>Decreased interest in sex</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Inability to or difficulty with orgasm"><span>Inability to / difficulty with orgasm</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Painful intercourse"><span>Painful intercourse</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Urinary incontinence"><span>Urinary incontinence</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Frequent Urinary Tract Infection (UTI)"><span>Frequent UTI</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Breast tenderness"><span>Breast tenderness</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Hair loss"><span>Hair loss</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Facial hair"><span>Facial hair</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Dry eyes"><span>Dry eyes</span></label>
+            <label class="sync-check"><input type="checkbox" name="female_packet_symptoms" value="Joint pain"><span>Joint pain</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="sync-step" data-title="HIPAA notice">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">PRIVACY NOTICE</p>
+          <h2>HIPAA Notice of Privacy Practices</h2>
+          <p>Effective Date: February 16, 2026. Please review the notice and sign below.</p>
+        </div>
+        <div class="sync-consent-identity">
+          <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
+          <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
+        </div>
+        <div class="sync-legal-document" aria-label="HIPAA Notice of Privacy Practices">
+          <p><strong>THIS NOTICE DESCRIBES HOW MEDICAL INFORMATION ABOUT YOU MAY BE USED AND DISCLOSED AND HOW YOU CAN GET ACCESS TO THIS INFORMATION. PLEASE REVIEW IT CAREFULLY.</strong></p>
+          <h3>I. Our Commitment to Your Privacy</h3>
+          <p>At SYNC Life, we are committed to maintaining the privacy and confidentiality of your Protected Health Information (PHI). PHI includes individually identifiable health information created, received, or maintained by us relating to your physical or mental health, healthcare services provided to you, or payment for healthcare services.</p>
+          <p>We are required by law, including the Health Insurance Portability and Accountability Act (HIPAA) Privacy Rule and 42 CFR Part 2 (where applicable), to:</p>
+          <ul><li>Maintain the privacy and security of your PHI and Substance Use Disorder (SUD) records.</li><li>Provide you with this Notice of Privacy Practices detailing our legal duties and privacy practices.</li><li>Notify you promptly following a breach of your unsecured PHI.</li><li>Abide by the terms of this Notice currently in effect.</li></ul>
+          <h3>II. How We May Use and Disclose Your Health Information</h3>
+          <p>We may use and disclose your PHI for treatment, payment, and healthcare operations without your explicit written authorization under standard conditions, subject to specific restrictions for sensitive information described below.</p>
+          <h4>1. Treatment</h4><p>We use and share your health information to provide, coordinate, or manage your care. For example, our functional medical practitioners may share information regarding cellular micronutrient testing, hormone levels, or wellness plans with nurses, laboratory technicians, or consulting specialists involved in your care.</p>
+          <h4>2. Payment</h4><p>We may use and disclose your PHI to bill and collect payment from you, your health insurance plan, or third parties for the services you receive. For example, we may send a bill to your insurance company or process payment for IV hydration therapy or primary care visits.</p>
+          <h4>3. Healthcare Operations</h4><p>We may use and share your PHI to run our practice, improve quality of care, train staff, and perform administrative functions. For example, we may use clinical data to evaluate the effectiveness of our protocols or conduct compliance reviews.</p>
+          <h4>4. Appointment Reminders and Service Communications</h4><p>We may contact you to provide appointment reminders, follow-up messages regarding lab results, or information about treatment alternatives and health-related benefits/services that may interest you.</p>
+          <h3>III. Special Privacy Protections for Sensitive Data</h3>
+          <h4>1. Substance Use Disorder (SUD) Records (42 CFR Part 2)</h4>
+          <p>If SYNC Life receives, creates, or maintains records originating from a Substance Use Disorder (SUD) treatment program governed by 42 CFR Part 2, enhanced federal privacy rules apply:</p>
+          <ul><li><strong>Single Consent for Future Uses/Disclosures:</strong> Once you sign a written consent permitting us to use or disclose your Part 2 SUD records for treatment, payment, or healthcare operations, we may make subsequent uses and disclosures of those records (including redisclosures) as permitted by HIPAA, until you revoke your consent in writing.</li><li><strong>Restriction on Legal Proceedings:</strong> SUD records or information derived from them cannot be used or disclosed in criminal, civil, administrative, or legislative proceedings against you without your specific written consent or a court order meeting federal 42 CFR Part 2 requirements.</li><li><strong>Redisclosure Notice:</strong> Any redisclosure of Part 2 records to third parties will be accompanied by the required federal notice prohibiting further disclosure without express authorization.</li></ul>
+          <h3>IV. Disclosures Requiring Written Authorization</h3>
+          <p>For purposes not covered by standard treatment, payment, or healthcare operations, or where required by state/federal laws, we will obtain your explicit written authorization before using or disclosing your PHI. Specific examples include:</p>
+          <ul><li><strong>Psychotherapy Notes:</strong> Most uses and disclosures of psychotherapy notes require your written authorization.</li><li><strong>Marketing:</strong> We will not use or disclose your PHI for marketing purposes or receive financial remuneration for selling your PHI without your signed authorization.</li><li><strong>Other Uses:</strong> Any other use or disclosure not described in this Notice will be made only with your written authorization, which you may revoke in writing at any time.</li></ul>
+          <h3>V. Uses and Disclosures Permitted or Required by Law</h3>
+          <p>In certain situations, federal or state law permits or requires us to disclose your PHI without your authorization or opportunity to object:</p>
+          <ul><li>Public Health and Safety</li><li>Health Oversight Activities</li><li>Judicial and Administrative Proceedings</li><li>Law Enforcement</li><li>Organ and Tissue Donation / Coroners</li><li>Threat to Health or Safety</li><li>Worker's Compensation</li></ul>
+          <h3>VI. Your Individual Rights Regarding Your PHI</h3>
+          <ol><li><strong>Right to Inspect and Copy.</strong> You have the right to inspect and obtain an electronic or paper copy of your medical and billing records. We will provide a copy or summary within 30 days of your written request. We may charge a reasonable, cost-based fee.</li><li><strong>Right to Request Restrictions.</strong> You have the right to ask us to restrict or limit how we use or disclose your PHI for treatment, payment, or healthcare operations. While we are not required to agree to every request, we must agree if you request that we not send PHI to your health plan for payment or healthcare operations purposes, and the PHI pertains solely to an item or service for which you (or someone on your behalf) paid SYNC Life in full out-of-pocket.</li><li><strong>Right to Request Confidential Communications.</strong> You have the right to request that we communicate with you about medical matters in a specific way or at a specific location. We will accommodate all reasonable requests.</li><li><strong>Right to Amend Your Records.</strong> If you feel that the health information we have about you is incorrect or incomplete, you may request an amendment in writing. You must state the reason for the request. We may deny your request under certain conditions, but we will inform you of the reason in writing within 60 days.</li><li><strong>Right to an Accounting of Disclosures.</strong> You have the right to request an accounting of disclosures of your PHI made by SYNC Life for up to six years prior to the date of your request, subject to the exclusions described in this Notice.</li><li><strong>Right to Paper Copy of This Notice.</strong> You have the right to obtain a paper copy of this Notice at any time, even if you previously agreed to receive it electronically.</li></ol>
+          <h3>VII. Changes to This Notice of Privacy Practices</h3>
+          <p>SYNC Life reserves the right to change the terms of this Notice and to make the new Notice provisions effective for all PHI that we maintain, including PHI created or received prior to issuing the revised Notice. When changes are made, we will promptly post the revised Notice in our facility, publish it on our website, and make copies available upon request.</p>
+          <h3>VIII. Complaints and Contact Information</h3>
+          <p>If you believe your privacy rights have been violated, or if you have questions about this Notice, you may file a complaint with SYNC Life or with the Secretary of the U.S. Department of Health and Human Services (HHS).</p>
+          <p><strong>SYNC Life Compliance Office:</strong><br>Compliance Officer (HIPAA Program)<br>SYNC Life<br>Baton Rouge, LA<br>Phone: (225) 555-0199<br>Email: privacy@synclife.health</p>
+          <p><strong>U.S. Department of Health and Human Services:</strong><br>Office for Civil Rights (OCR)<br>200 Independence Avenue, S.W.<br>Washington, D.C. 20201<br>Website: https://www.hhs.gov/hipaa/filing-a-complaint/index.html</p>
+          <p>SYNC Life strictly prohibits any retaliation or penalty against you for filing a complaint or exercising your privacy rights.</p>
+        </div>
+        <label class="sync-check">
+          <input type="checkbox" name="hipaa_acknowledgment" value="yes" required>
+          <span>I acknowledge that I have reviewed the SYNC Life HIPAA Notice of Privacy Practices. *</span>
+        </label>
+        <input type="hidden" name="hipaa_signature_data_url" id="hipaa_signature_data_url">
+        <input type="hidden" name="hipaa_signed_at" id="hipaa_signed_at">
+        <div class="sync-signature-wrap">
+          <div class="sync-signature-label"><strong>Signature *</strong><span>Use your finger, mouse or stylus</span></div>
+          <canvas class="sync-signature-canvas" id="hipaa_signature_canvas" data-signature-field="hipaa_signature_data_url" data-signed-at-field="hipaa_signed_at" aria-label="HIPAA signature pad"></canvas>
+          <div class="sync-signature-actions"><button type="button" class="sync-signature-clear" data-clear-signature="hipaa_signature_canvas">CLEAR SIGNATURE</button></div>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Treatment consent">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">GENERAL CONSENT</p>
+          <h2>General Consent to Treatment</h2>
+          <p>Please review the treatment consent and sign below.</p>
+        </div>
+        <div class="sync-consent-identity">
+          <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
+          <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
+        </div>
+        <div class="sync-legal-document">
+          <p>This consent provides us with your permission to perform reasonable and necessary medical examinations, testing and treatment. By signing below, you are indicating that:</p>
+          <ol><li>You consent to treatment at this office (or any other satellite office under common ownership).</li><li>You intend this consent to remain effective after a specific diagnosis has been made and treatment recommended.</li></ol>
+          <p>You have the right at any time to discontinue services. You have the right to discuss the treatment plan with your physician, including the purpose, potential risks, and benefits of any test, treatment, or recommended course of action. If you have any concerns regarding any test or treatment recommend by your health care provider, we encourage you to ask questions.</p>
+          <h3>Patient statement of consent</h3>
+          <p>“I voluntarily request the health care provider(s) at this clinic to perform reasonable and necessary medical examination, testing, and treatment for the condition which has brought me to seek care at this practice. I understand that if additional testing, invasive, or interventional procedures are recommended, I will be asked to read and sign additional consent forms prior to the test(s) or procedure(s). I certify that I have read and understand the above statements and consent fully and voluntarily to them.”</p>
+        </div>
+        <div class="sync-grid sync-grid-2">
+          <fieldset>
+            <legend>Who is signing?</legend>
+            <div class="sync-choice-row">
+              <label class="sync-choice"><input type="radio" name="signing_capacity" value="self" required><span>Patient / self</span></label>
+              <label class="sync-choice"><input type="radio" name="signing_capacity" value="legal_representative"><span>Legal representative</span></label>
+            </div>
+          </fieldset>
+          <label id="legal-representative-relationship" hidden>Relation to patient<input name="legal_representative_relationship"></label>
+        </div>
+        <label class="sync-check">
+          <input type="checkbox" name="general_consent_acknowledgment" value="yes" required>
+          <span>I certify that I have read and understand the statements above and consent fully and voluntarily. *</span>
+        </label>
+        <input type="hidden" name="general_consent_signature_data_url" id="general_consent_signature_data_url">
+        <input type="hidden" name="general_consent_signed_at" id="general_consent_signed_at">
+        <div class="sync-signature-wrap">
+          <div class="sync-signature-label"><strong>Signature *</strong><span>Use your finger, mouse or stylus</span></div>
+          <canvas class="sync-signature-canvas" id="general_consent_signature_canvas" data-signature-field="general_consent_signature_data_url" data-signed-at-field="general_consent_signed_at" aria-label="General consent signature pad"></canvas>
+          <div class="sync-signature-actions"><button type="button" class="sync-signature-clear" data-clear-signature="general_consent_signature_canvas">CLEAR SIGNATURE</button></div>
+        </div>
+      </section>
+
+      <section class="sync-step" data-title="Telehealth consent">
+        <div class="sync-section-heading">
+          <p class="sync-eyebrow">TELEHEALTH</p>
+          <h2>Telehealth Consent Form</h2>
+          <p>Please review the telehealth consent and sign below.</p>
+        </div>
+        <div class="sync-consent-identity">
+          <div><small>Patient</small><strong data-patient-name>Patient name</strong></div>
+          <div><small>Date</small><strong data-sign-date>Today's date</strong></div>
+        </div>
+        <div class="sync-legal-document">
+          <p>For convenience of accessing care, our clinic offers remote telehealth consultations between patients and clinicians via a secure video platform. Additionally, your healthcare provider may consult with other providers or specialists remotely about your care via video or phone. Please carefully review this form and indicate your acceptance below.</p>
+          <h3>Potential benefits of telehealth include:</h3>
+          <ul><li>Convenience in accessing your providers from your home or another location.</li><li>Protection against the transmission of communicable illnesses between yourself and other patients and clinic staff.</li><li>Improvements to the quality of care when your clinician can consult with other providers as needed.</li></ul>
+          <p>Inherent in the use of telehealth are technological risks of disruption to the call or video connection and other technical difficulties. You or the provider may discontinue the telehealth consultation if either of you determine that technical difficulties are too disruptive to continue.</p>
+          <p>We take strong precautions to safeguard the privacy of your protected health information (PHI), including using only HIPAA-compliant platforms for telehealth. Nevertheless, there is an unavoidable risk of unauthorized access when sending/receiving PHI electronically (for example, via a video feed). You are solely responsible for ensuring privacy and confidentiality on your side - by conducting the visit in a private space where others cannot overhear and cannot see private information on the screen. We do not record (voice or video) telehealth consultations, but the health care provider will retain a medical record of care in their secure electronic health records system.</p>
+          <p>Some visits - specifically, those that require the clinician to be physically present with you - are not suitable for telehealth. Your provider may ask that you schedule an in-person visit for any issues that require in-person evaluation or treatment. Telehealth is not a substitute for emergency care. If you need urgent care, call 911 or go to the nearest urgent care facility.</p>
+          <p>You are responsible for the cost of your telehealth consultation. If you are seeking insurance payment or reimbursement for the visit, note that insurance companies may require that you participate in the telehealth consultation from a hospital, a mental health facility, a physician's office, an adult care facility, or your home.</p>
+          <h3>Consent to the Use of Telehealth</h3>
+          <ul><li>I have read this form - or had it read and explained to me - in full. I fully understand its contents, including the risks, benefits, and alternatives.</li><li>I have been given opportunity to ask questions and any questions have been answered to my satisfaction.</li></ul>
+          <p>I hereby give my informed consent to the use of telehealth in the course of my diagnosis and treatment.</p>
+        </div>
+        <label class="sync-check">
+          <input type="checkbox" name="telehealth_acknowledgment" value="yes" required>
+          <span>I give my informed consent to the use of telehealth in the course of my diagnosis and treatment. *</span>
+        </label>
+        <input type="hidden" name="telehealth_signature_data_url" id="telehealth_signature_data_url">
+        <input type="hidden" name="telehealth_signed_at" id="telehealth_signed_at">
+        <div class="sync-signature-wrap">
+          <div class="sync-signature-label"><strong>Signature *</strong><span>Use your finger, mouse or stylus</span></div>
+          <canvas class="sync-signature-canvas" id="telehealth_signature_canvas" data-signature-field="telehealth_signature_data_url" data-signed-at-field="telehealth_signed_at" aria-label="Telehealth signature pad"></canvas>
+          <div class="sync-signature-actions"><button type="button" class="sync-signature-clear" data-clear-signature="telehealth_signature_canvas">CLEAR SIGNATURE</button></div>
+        </div>
+      </section>
+
       <section class="sync-step" data-title="Review">
         <div class="sync-section-heading">
           <p class="sync-eyebrow">REVIEW AND SIGN</p>
@@ -935,14 +1381,13 @@
         </div>
         <div id="review-summary" class="sync-review"></div>
         <div class="sync-consent-card">
-          <h3>Privacy and consent</h3>
-          <p id="consent-copy">I attest that I have reviewed the current SYNC Life privacy notice and that the information provided is accurate to the best of my knowledge. I understand this form does not replace medical advice and I should discuss medical decisions with my primary care provider.</p>
-          <label class="sync-check">
-            <input type="checkbox" name="privacy_acknowledgment" required>
-            <span>I acknowledge the privacy notice and consent statement. *</span>
+          <h3>Final confirmation</h3>
+          <p>Your three required consent signatures have been collected separately. Your name and demographic information will be reused when the final PDFs are generated, so you do not need to type them again.</p>
+          <div class="sync-document-status" id="document-status"></div>
+          <label class="sync-check" style="margin-top: 18px;">
+            <input type="checkbox" name="final_accuracy_confirmation" value="yes" required>
+            <span>I confirm that the information I provided is accurate to the best of my knowledge. *</span>
           </label>
-          <label>Electronic signature *<input name="electronic_signature" required placeholder="Type your full legal name"></label>
-          <label>Date signed *<input type="date" name="date_signed" id="date_signed" required></label>
           <label class="sync-check">
             <input type="checkbox" name="marketing_consent" value="yes">
             <span>I would like to receive optional SYNC Life updates. This is not required for care.</span>
@@ -954,7 +1399,7 @@
         <button type="button" id="sync-back" class="sync-btn sync-btn-outline" hidden>BACK</button>
         <button type="button" id="sync-save" class="sync-btn sync-btn-ghost">SAVE FOR LATER</button>
         <button type="button" id="sync-next" class="sync-btn sync-btn-primary">GET STARTED</button>
-        <button type="submit" id="sync-submit" class="sync-btn sync-btn-primary" hidden>SUBMIT INTAKE</button>
+        <button type="submit" id="sync-submit" class="sync-btn sync-btn-primary" hidden>SUBMIT INTAKE & CONSENTS</button>
       </div>
     </form>
 
@@ -975,7 +1420,8 @@
     submitEndpoint: "https://synclife.app.n8n.cloud/webhook/99e692d1-38ba-4db4-9b5f-8a509d8ecd11",
     saveDraftEndpoint: "https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/2361bb28-5de4-4ed2-9d8a-32e8f58ffb53",
     redirectUrl: "",
-    consentVersion: "2026.07",
+    consentVersion: "2026.09",
+    documentPacketVersion: "2026.09",
     debug: true
   };
 
@@ -995,6 +1441,14 @@
 
   const form = document.getElementById("sync-intake-form");
   const steps = [...form.querySelectorAll(".sync-step")];
+
+  function activeSteps() {
+    const sex = selected("sex_at_birth");
+    return steps.filter(step => {
+      const requiredSex = step.dataset.sexStep;
+      return !requiredSex || requiredSex === sex;
+    });
+  }
   const progress = document.getElementById("sync-progress-bar");
   const stepLabel = document.getElementById("sync-step-label");
   const estimate = document.getElementById("sync-estimate");
@@ -1095,8 +1549,18 @@
     show("mold-details", selected("mold_exposure") === "yes");
     show("chemical-details", selected("chemical_exposure") === "yes");
     show("hormone-therapy-details", selected("hormone_therapy") === "yes");
+    show("male-5ar-detail", selected("male_5ar_use") === "yes");
+    show("male-prostate-med-detail", selected("male_prostate_medications") === "yes");
+    show("male-balding-med-detail", selected("male_balding_medications") === "yes");
+    show("legal-representative-relationship", selected("signing_capacity") === "legal_representative");
 
     const sex = selected("sex_at_birth");
+    steps.filter(step => step.dataset.sexStep).forEach(step => {
+      const activeForSex = step.dataset.sexStep === sex;
+      step.querySelectorAll("input,select,textarea").forEach(field => {
+        field.disabled = !activeForSex;
+      });
+    });
     const uterusRelevant = sex === "female";
     const prostateRelevant = sex === "male";
     
@@ -1133,22 +1597,29 @@
   }
 
   function updateStep() {
-    steps.forEach((step, index) => step.classList.toggle("is-active", index === currentStep));
-    const title = steps[currentStep].dataset.title;
+    const available = activeSteps();
+    currentStep = Math.max(0, Math.min(currentStep, available.length - 1));
+    steps.forEach(step => step.classList.remove("is-active"));
+    const step = available[currentStep];
+    step.classList.add("is-active");
+    const title = step.dataset.title;
     stepLabel.textContent = title;
-    progress.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
+    progress.style.width = `${((currentStep + 1) / available.length) * 100}%`;
     backBtn.hidden = currentStep === 0;
-    nextBtn.hidden = currentStep === steps.length - 1;
-    submitBtn.hidden = currentStep !== steps.length - 1;
+    nextBtn.hidden = currentStep === available.length - 1;
+    submitBtn.hidden = currentStep !== available.length - 1;
     nextBtn.textContent = currentStep === 0 ? "GET STARTED" : "CONTINUE";
-    if (currentStep === steps.length - 1) buildReview();
+    if (currentStep === available.length - 1) buildReview();
     setConditionalState();
+    updateConsentIdentity();
+    requestAnimationFrame(() => resizeVisibleSignaturePads());
     statusBox.classList.remove("is-visible");
     window.scrollTo({ top: document.getElementById("sync-intake-app").offsetTop, behavior: "smooth" });
   }
 
   function visibleRequiredFields() {
-    return [...steps[currentStep].querySelectorAll("[required]")].filter(field => {
+    const step = activeSteps()[currentStep];
+    return [...step.querySelectorAll("[required]")].filter(field => {
       const hiddenParent = field.closest("[hidden]");
       return !hiddenParent && !field.disabled;
     });
@@ -1162,15 +1633,28 @@
       field.classList.remove("sync-invalid");
       let valid = field.checkValidity();
       if ((field.type === "radio" || field.type === "checkbox") && field.name) {
-        valid = !!steps[currentStep].querySelector(`[name="${CSS.escape(field.name)}"]:checked`);
+        valid = !!activeSteps()[currentStep].querySelector(`[name="${CSS.escape(field.name)}"]:checked`);
       }
       if (!valid) {
         field.classList.add("sync-invalid");
         firstInvalid ||= field;
       }
     });
+    const activeStep = activeSteps()[currentStep];
+    const requiredSignatureCanvas = activeStep.querySelector(".sync-signature-canvas");
+    if (requiredSignatureCanvas) {
+      requiredSignatureCanvas.classList.remove("sync-invalid");
+      const hidden = document.getElementById(requiredSignatureCanvas.dataset.signatureField);
+      if (!hidden || !hidden.value) {
+        requiredSignatureCanvas.classList.add("sync-invalid");
+        if (!firstInvalid) firstInvalid = requiredSignatureCanvas;
+      }
+    }
+
     if (firstInvalid) {
-      statusBox.textContent = "Please complete the required fields before continuing.";
+      statusBox.textContent = requiredSignatureCanvas && firstInvalid === requiredSignatureCanvas
+        ? "Please sign this document before continuing."
+        : "Please complete the required fields before continuing.";
       statusBox.classList.add("is-visible");
       firstInvalid.focus();
       firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1207,6 +1691,59 @@
     data.consent_version = CONFIG.consentVersion;
     data.submitted_at = new Date().toISOString();
     data.page_url = location.href.split("?")[0];
+    data.submission_kind = "intake_and_consents";
+    data.document_packet_version = CONFIG.documentPacketVersion;
+
+    const sex = data.sex_at_birth || "";
+    const patientName = [data.first_name, data.last_name].filter(Boolean).join(" ");
+    data.document_packet = {
+      patient: {
+        full_name: patientName,
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        date_of_birth: data.date_of_birth || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        address_1: data.address_1 || "",
+        address_2: data.address_2 || "",
+        city: data.city || "",
+        state: data.state || "",
+        zip_code: data.zip_code || "",
+        sex_at_birth: sex
+      },
+      hormone_intake: {
+        template_key: sex === "female" ? "initial_hormone_therapy_intake_female" : "initial_hormone_therapy_intake_male",
+        sex_at_birth: sex,
+        fields_source: "root_payload"
+      },
+      consents: [
+        {
+          document_key: "hipaa_notice_of_privacy_practices",
+          document_version: "2026-02-16",
+          acknowledged: data.hipaa_acknowledgment === "yes",
+          signature_data_url: data.hipaa_signature_data_url || "",
+          signed_at: data.hipaa_signed_at || ""
+        },
+        {
+          document_key: "general_consent_to_treatment",
+          document_version: CONFIG.consentVersion,
+          acknowledged: data.general_consent_acknowledgment === "yes",
+          signature_data_url: data.general_consent_signature_data_url || "",
+          signed_at: data.general_consent_signed_at || "",
+          signing_capacity: data.signing_capacity || "",
+          legal_representative_relationship: data.legal_representative_relationship || ""
+        },
+        {
+          document_key: "telehealth_consent",
+          document_version: CONFIG.consentVersion,
+          acknowledged: data.telehealth_acknowledgment === "yes",
+          signature_data_url: data.telehealth_signature_data_url || "",
+          signed_at: data.telehealth_signed_at || ""
+        }
+      ],
+      generate_pdfs: true,
+      target_system: "cerbo"
+    };
 
     return data;
   }
@@ -1215,6 +1752,13 @@
   function saveLocalDraft() {
     try {
       const data = payloadFromForm();
+      // Do not persist handwritten signatures or the assembled document packet in browser storage.
+      delete data.document_packet;
+      [
+        "hipaa_signature_data_url", "hipaa_signed_at",
+        "general_consent_signature_data_url", "general_consent_signed_at",
+        "telehealth_signature_data_url", "telehealth_signed_at"
+      ].forEach(key => delete data[key]);
       localStorage.setItem('sync_life_intake_draft', JSON.stringify({
         data: data,
         currentStep: currentStep,
@@ -1246,8 +1790,8 @@
           });
         });
       }
-      if (typeof savedStep === 'number' && savedStep < steps.length) {
-        currentStep = savedStep;
+      if (typeof savedStep === 'number') {
+        currentStep = Math.min(savedStep, Math.max(0, activeSteps().length - 1));
       }
     } catch (e) {
       if (CONFIG.debug) console.error("Error loading local draft", e);
@@ -1264,7 +1808,10 @@
       ["Medications and supplements", ["medication_name[]","medication_dose[]","supplement_name[]","supplement_dose[]"]],
       ["Nutrition and lifestyle", ["current_weight","diet_priority","food_reaction_notes","current_tobacco","alcohol_weekly","exercise_type"]],
       ["Mind and sleep", ["vitality_change","stress_level","sleep_hours","sleep_concerns"]],
-      ["Environment", ["environmental_triggers","mold_exposure_details","chemical_name"]]
+      ["Environment", ["environmental_triggers","mold_exposure_details","chemical_name"]],
+      ["Hormone packet", selected("sex_at_birth") === "female"
+        ? ["female_social_history","female_current_birth_control","female_birth_control","female_hrt_past","female_hrt_current","female_specific_history","female_packet_symptoms"]
+        : ["male_last_prostate_check","male_social_history","male_5ar_use","male_prostate_medications","male_pde5","male_hrt_past","male_hrt_current","male_specific_history","male_packet_symptoms"]]
     ];
     const labelFor = key => key.replace(/\[\]/g, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     document.getElementById("review-summary").innerHTML = sections.map(([title, keys]) => {
@@ -1278,6 +1825,18 @@
         <h3>Conditions selected</h3>
         <p>${escapeHtml(checkedValues("conditions").join(", ") || "None reported")}</p>
       </div>`;
+
+    const sex = selected("sex_at_birth");
+    const status = document.getElementById("document-status");
+    if (status) {
+      const docName = sex === "female" ? "Female hormone intake" : "Male hormone intake";
+      const signatureStatus = id => document.getElementById(id)?.value ? "Signed" : "Not signed";
+      status.innerHTML = `
+        <div><strong>${escapeHtml(docName)}</strong><br><span>Will be generated from your answers.</span></div>
+        <div><strong>HIPAA Notice</strong><br><span>${signatureStatus("hipaa_signature_data_url")}</span></div>
+        <div><strong>General Consent to Treatment</strong><br><span>${signatureStatus("general_consent_signature_data_url")}</span></div>
+        <div><strong>Telehealth Consent</strong><br><span>${signatureStatus("telehealth_signature_data_url")}</span></div>`;
+    }
   }
 
   // Helper for JSON Webhook POST with LeadConnector/GHL Support
@@ -1313,6 +1872,132 @@
         console.error("Fallback POST also encountered error:", err);
       }
     }
+  }
+
+
+  function formatDisplayDate(date = new Date()) {
+    return date.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  function updateConsentIdentity() {
+    const first = form.querySelector('[name="first_name"]')?.value?.trim() || "";
+    const last = form.querySelector('[name="last_name"]')?.value?.trim() || "";
+    const fullName = [first, last].filter(Boolean).join(" ") || "Patient name";
+    document.querySelectorAll("[data-patient-name]").forEach(el => el.textContent = fullName);
+    document.querySelectorAll("[data-sign-date]").forEach(el => el.textContent = formatDisplayDate());
+  }
+
+  const signatureState = new Map();
+
+  function signaturePoint(canvas, event) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  function drawSignatureData(canvas, dataUrl) {
+    if (!dataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    };
+    img.src = dataUrl;
+  }
+
+  function resizeSignatureCanvas(canvas) {
+    if (!canvas || canvas.offsetParent === null) return;
+    const hidden = document.getElementById(canvas.dataset.signatureField);
+    const saved = hidden?.value || "";
+    const cssWidth = Math.max(280, canvas.clientWidth || canvas.parentElement.clientWidth || 600);
+    const cssHeight = parseFloat(getComputedStyle(canvas).height) || 180;
+    const ratio = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.round(cssWidth * ratio);
+    canvas.height = Math.round(cssHeight * ratio);
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2.1;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#17393c";
+    if (saved) drawSignatureData(canvas, saved);
+  }
+
+  function resizeVisibleSignaturePads() {
+    document.querySelectorAll(".sync-signature-canvas").forEach(resizeSignatureCanvas);
+  }
+
+  function saveSignatureCanvas(canvas) {
+    const hidden = document.getElementById(canvas.dataset.signatureField);
+    const signedAt = document.getElementById(canvas.dataset.signedAtField);
+    if (hidden) hidden.value = canvas.toDataURL("image/png");
+    if (signedAt) signedAt.value = new Date().toISOString();
+    canvas.classList.remove("sync-invalid");
+    saveLocalDraft();
+  }
+
+  function clearSignatureCanvas(canvas) {
+    const ratio = Math.max(1, window.devicePixelRatio || 1);
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+    const hidden = document.getElementById(canvas.dataset.signatureField);
+    const signedAt = document.getElementById(canvas.dataset.signedAtField);
+    if (hidden) hidden.value = "";
+    if (signedAt) signedAt.value = "";
+    const state = signatureState.get(canvas);
+    if (state) state.hasInk = false;
+    saveLocalDraft();
+  }
+
+  function initializeSignaturePads() {
+    document.querySelectorAll(".sync-signature-canvas").forEach(canvas => {
+      canvas.tabIndex = 0;
+      const state = { drawing: false, hasInk: false, last: null };
+      signatureState.set(canvas, state);
+
+      canvas.addEventListener("pointerdown", event => {
+        event.preventDefault();
+        canvas.setPointerCapture?.(event.pointerId);
+        state.drawing = true;
+        state.hasInk = true;
+        state.last = signaturePoint(canvas, event);
+      });
+
+      canvas.addEventListener("pointermove", event => {
+        if (!state.drawing) return;
+        event.preventDefault();
+        const point = signaturePoint(canvas, event);
+        const ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.moveTo(state.last.x, state.last.y);
+        ctx.lineTo(point.x, point.y);
+        ctx.stroke();
+        state.last = point;
+      });
+
+      const finish = event => {
+        if (!state.drawing) return;
+        event?.preventDefault?.();
+        state.drawing = false;
+        state.last = null;
+        if (state.hasInk) saveSignatureCanvas(canvas);
+      };
+      canvas.addEventListener("pointerup", finish);
+      canvas.addEventListener("pointercancel", finish);
+      canvas.addEventListener("pointerleave", event => { if (state.drawing && event.buttons === 0) finish(event); });
+    });
+
+    document.querySelectorAll("[data-clear-signature]").forEach(button => {
+      button.addEventListener("click", () => {
+        const canvas = document.getElementById(button.dataset.clearSignature);
+        if (canvas) clearSignatureCanvas(canvas);
+      });
+    });
+
+    window.addEventListener("resize", () => requestAnimationFrame(resizeVisibleSignaturePads));
   }
 
   // Live Telephone Formatter
@@ -1355,6 +2040,7 @@
   
   form.addEventListener("input", () => {
     setConditionalState();
+    updateConsentIdentity();
     saveLocalDraft();
   });
 
@@ -1362,7 +2048,7 @@
   nextBtn.addEventListener("click", () => {
     if (!validateStep()) return;
     saveLocalDraft();
-    currentStep = Math.min(steps.length - 1, currentStep + 1);
+    currentStep = Math.min(activeSteps().length - 1, currentStep + 1);
     updateStep();
   });
 
@@ -1517,8 +2203,8 @@
       
       successCard.innerHTML = `
         <div style="width: 70px; height: 70px; background: #e8f7ef; color: #195f43; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 24px; font-weight: bold;">✓</div>
-        <h1 style="color: #0f4f55; margin: 0 auto 12px; max-width: 100%; font-size: 36px; text-align: center;">Intake Submitted Successfully!</h1>
-        <p style="font-size: 18px; color: #526568; max-width: 550px; margin: 0 auto 24px; text-align: center;">Thank you, <strong>${escapeHtml(payload.first_name)}</strong>. Your health intake form has been securely transmitted to our clinical team at SYNC Life.</p>
+        <h1 style="color: #0f4f55; margin: 0 auto 12px; max-width: 100%; font-size: 36px; text-align: center;">Intake & Consents Submitted Successfully!</h1>
+        <p style="font-size: 18px; color: #526568; max-width: 550px; margin: 0 auto 24px; text-align: center;">Thank you, <strong>${escapeHtml(payload.first_name)}</strong>. Your intake information and signed consent packet have been transmitted to our clinical workflow for processing.</p>
         <p style="font-size: 14px; color: #667679; margin: 0 auto; text-align: center;">You may close this tab or window now.</p>
       `;
 
@@ -1534,12 +2220,13 @@
       statusBox.textContent = "Your intake could not be submitted. Please check your connection and try again.";
       statusBox.classList.add("is-visible");
       submitBtn.disabled = false;
-      submitBtn.textContent = "SUBMIT INTAKE";
+      submitBtn.textContent = "SUBMIT INTAKE & CONSENTS";
       if (CONFIG.debug) console.error(error);
     }
   });
 
   renderConditions();
+  initializeSignaturePads();
   loadLocalDraft();
 
   if (CONFIG.logoUrl) {
@@ -1548,7 +2235,7 @@
     logo.hidden = false;
     document.getElementById("sync-logo-fallback").hidden = true;
   }
-  document.getElementById("date_signed").value = new Date().toISOString().slice(0,10);
+  updateConsentIdentity();
   updateStep();
 })();
 </script>
