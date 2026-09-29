@@ -2345,13 +2345,16 @@
   }
 
   async function postJsonStrict(url, payload) {
+    // Send as a CORS "simple request" so the browser does NOT issue an
+    // OPTIONS preflight to n8n. The full JSON payload (including Base64 PDFs)
+    // is carried in the same `payload` form field that the n8n Parse node
+    // already handled when this workflow used multipart/form-data.
+    const body = new URLSearchParams();
+    body.set("payload", JSON.stringify(payload));
+
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(payload)
+      body
     });
 
     if (!response.ok) {
