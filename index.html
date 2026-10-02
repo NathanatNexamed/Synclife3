@@ -34,7 +34,7 @@
       position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center;
       max-width: 1120px; margin: 0 auto; padding: 28px 30px 18px;
     }
-    .sync-brand img { max-width: 190px; max-height: 58px; display: block; }
+    .sync-brand img { max-width: 220px; max-height: 60px; display: block; object-fit: contain; }
     #sync-logo-fallback { color: var(--midnight); font-size: 25px; letter-spacing: .17em; }
     #sync-logo-fallback strong { font-weight: 800; }
     .sync-header-meta { display: flex; gap: 18px; color: var(--muted); font-size: 13px; }
@@ -69,7 +69,7 @@
     input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
       width: 100%; margin-top: 7px; padding: 13px 14px; color: var(--ink); background: var(--white);
       border: 1.5px solid #cbdad5; border-radius: 10px; outline: none; font: inherit; font-weight: 500;
-      transition: border-color .15s, box-shadow .15s;
+      transition: border-color .15s, box-shadow .15s, background-color .15s;
     }
     textarea { resize: vertical; min-height: 78px; }
     input:focus, select:focus, textarea:focus { border-color: var(--midnight) !important; box-shadow: 0 0 0 4px rgba(118,199,160,.22); }
@@ -80,8 +80,8 @@
     .sync-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
     .sync-choice, .sync-check {
       display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 11px 14px;
-      border: 1px solid var(--line); border-radius: 10px; background: var(--white); cursor: pointer;
-      font-weight: 650; transition: border-color .15s, background .15s, transform .15s;
+      border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); cursor: pointer;
+      font-weight: 650; transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
     }
     .sync-choice:hover, .sync-check:hover { border-color: var(--mint); background: #f7fcf9; }
     .sync-choice:has(input:checked), .sync-check:has(input:checked) { border-color: var(--midnight); background: #ecf8f2; }
@@ -116,7 +116,7 @@
     }
     .sync-add { margin: 0 0 26px; padding: 8px 0; }
     .sync-remove { color: #8a4a4a; padding: 5px 0; }
-    .sync-actions { display: flex; align-items: center; gap: 11px; margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--line); }
+    .sync-actions { display: flex; align-items: center; gap: 11px; margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
     .sync-btn {
       min-height: 48px; padding: 12px 24px; border: 1.5px solid var(--midnight); border-radius: 10px;
       font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .1em; cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s;
@@ -125,8 +125,20 @@
     .sync-btn-primary { margin-left: auto; color: white; background: var(--midnight); }
     .sync-btn-outline { color: var(--midnight); background: white; }
     .sync-btn-ghost { color: var(--midnight); background: transparent; border-color: transparent; }
-    .sync-status { display: none; margin: 20px clamp(24px,6vw,72px) 0; padding: 12px 15px; border-radius: 10px; }
-    .sync-status.is-visible { display: block; background: #fff4da; color: #72551a; }
+    
+    /* Repositioned & styled Warning Bar */
+    .sync-status { 
+      display: none; 
+      margin: 28px 0 12px 0; 
+      padding: 14px 18px; 
+      border-radius: 12px; 
+      font-weight: 750;
+      font-size: 14px;
+      border: 1.5px solid #e0be53;
+      box-shadow: 0 4px 14px rgba(224, 190, 83, 0.15);
+    }
+    .sync-status.is-visible { display: block; background: #fff8e6; color: #785a12; }
+    
     .sync-alert { padding: 18px; border-radius: 12px; margin-bottom: 24px; }
     .sync-alert-danger { margin: 20px clamp(24px,6vw,72px) 0; color: var(--danger); background: var(--danger-bg); border: 1px solid #e6aaa4; }
     .sync-alert-success { color: #195f43; background: var(--success-bg); border: 1px solid #9fd0b8; }
@@ -142,7 +154,25 @@
     }
     .sync-footer a { color: var(--midnight); text-decoration: none; font-weight: 750; }
     [hidden] { display: none !important; }
-    .sync-invalid { border-color: #ba3c3c !important; box-shadow: 0 0 0 3px rgba(186,60,60,.1) !important; }
+
+    /* Prominent Validation Error Highlighting */
+    .sync-invalid { 
+      border-color: #d93838 !important; 
+      background-color: #fff2f2 !important; 
+      box-shadow: 0 0 0 3.5px rgba(217, 56, 56, 0.2) !important; 
+    }
+    .sync-choice:has(.sync-invalid), .sync-check:has(.sync-invalid) {
+      border-color: #d93838 !important; 
+      background-color: #fff2f2 !important; 
+      box-shadow: 0 0 0 3.5px rgba(217, 56, 56, 0.2) !important; 
+    }
+    fieldset.sync-invalid-fieldset {
+      border: 1.5px solid #d93838 !important;
+      padding: 14px;
+      border-radius: 12px;
+      background-color: rgba(217, 56, 56, 0.03);
+    }
+
     @media (max-width: 800px) {
       .sync-grid-3, .sync-grid-4, .sync-choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .sync-header-meta span:last-child { display: none; }
@@ -161,7 +191,6 @@
       .sync-btn-ghost { order: 3; flex-basis: 100%; }
       .sync-review-section dl { grid-template-columns: 1fr; gap: 2px; }
     }
-  
 
     /* Integrated hormone packet + consent documents */
     .sync-packet-note {
@@ -196,7 +225,7 @@
       display: block; width: 100%; height: 180px; background: #fff; border: 1.5px solid #cbdad5;
       border-radius: 12px; touch-action: none; cursor: crosshair;
     }
-    .sync-signature-canvas.sync-invalid { border-color: #ba3c3c !important; box-shadow: 0 0 0 3px rgba(186,60,60,.1) !important; }
+    .sync-signature-canvas.sync-invalid { border-color: #d93838 !important; background-color: #fff2f2 !important; box-shadow: 0 0 0 3.5px rgba(217, 56, 56, 0.2) !important; }
     .sync-signature-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
     .sync-signature-clear {
       border: 0; background: transparent; color: var(--midnight); font: inherit; font-size: 12px;
@@ -211,7 +240,6 @@
       .sync-legal-document { max-height: 400px; padding: 18px; }
       .sync-signature-canvas { height: 160px; }
     }
-
   </style>
 </head>
 <body>
@@ -236,7 +264,6 @@
       <div id="sync-progress-bar"></div>
     </div>
 
-    <div id="sync-status" class="sync-status" role="status" aria-live="polite"></div>
     <div id="sync-emergency" class="sync-alert sync-alert-danger" role="alert" hidden>
       <strong>This form is not monitored for emergencies.</strong>
       Call 911 or seek emergency care now. Do not wait for a response from SYNC Life.
@@ -1022,7 +1049,6 @@
         </fieldset>
       </section>
 
-
       <section class="sync-step" data-title="Male hormone intake" data-sex-step="male">
         <div class="sync-section-heading">
           <p class="sync-eyebrow">MALE HORMONE INTAKE</p>
@@ -1281,7 +1307,7 @@
           <p>SYNC Life reserves the right to change the terms of this Notice and to make the new Notice provisions effective for all PHI that we maintain, including PHI created or received prior to issuing the revised Notice. When changes are made, we will promptly post the revised Notice in our facility, publish it on our website, and make copies available upon request.</p>
           <h3>VIII. Complaints and Contact Information</h3>
           <p>If you believe your privacy rights have been violated, or if you have questions about this Notice, you may file a complaint with SYNC Life or with the Secretary of the U.S. Department of Health and Human Services (HHS).</p>
-          <p><strong>SYNC Life Compliance Office:</strong><br>Compliance Officer (HIPAA Program)<br>SYNC Life<br>Baton Rouge, LA<br>Phone: (225) 555-0199<br>Email: privacy@synclife.health</p>
+          <p><strong>SYNC Life Compliance Office:</strong><br>Compliance Officer (HIPAA Program)<br>SYNC Life<br>17650 Highland Road Suite E, Baton Rouge, LA 70810<br>Phone: (225) 425-7962<br>Email: privacy@synclife.health</p>
           <p><strong>U.S. Department of Health and Human Services:</strong><br>Office for Civil Rights (OCR)<br>200 Independence Avenue, S.W.<br>Washington, D.C. 20201<br>Website: https://www.hhs.gov/hipaa/filing-a-complaint/index.html</p>
           <p>SYNC Life strictly prohibits any retaliation or penalty against you for filing a complaint or exercising your privacy rights.</p>
         </div>
@@ -1395,6 +1421,9 @@
         </div>
       </section>
 
+      <!-- Warning bar placed directly above navigation buttons -->
+      <div id="sync-status" class="sync-status" role="status" aria-live="polite"></div>
+
       <div class="sync-actions">
         <button type="button" id="sync-back" class="sync-btn sync-btn-outline" hidden>BACK</button>
         <button type="button" id="sync-save" class="sync-btn sync-btn-ghost">SAVE FOR LATER</button>
@@ -1405,7 +1434,7 @@
 
     <footer class="sync-footer">
       <span>SYNC Life</span>
-      <span>[UPDATE ADDRESS HERE]</span>
+      <span>17650 Highland Road Suite E, Baton Rouge, LA 70810</span>
       <a href="tel:+12254257962">(225) 425-7962</a>
     </footer>
   </main>
@@ -1418,7 +1447,7 @@
   "use strict";
 
   const CONFIG = {
-    logoUrl: "",
+    logoUrl: "https://assets.cdn.filesafe.space/z85Y4tKRPRddv16dW0Gr/media/6abfdb7cf30b488137b57936.svg",
     submitEndpoint: "https://synclife.app.n8n.cloud/webhook/99e692d1-38ba-4db4-9b5f-8a509d8ecd11",
     saveDraftEndpoint: "https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/2361bb28-5de4-4ed2-9d8a-32e8f58ffb53",
     redirectUrl: "",
@@ -1631,18 +1660,29 @@
     setConditionalState();
     const required = visibleRequiredFields();
     let firstInvalid = null;
+
+    const activeStep = activeSteps()[currentStep];
+    activeStep.querySelectorAll(".sync-invalid, .sync-invalid-fieldset").forEach(el => {
+      el.classList.remove("sync-invalid", "sync-invalid-fieldset");
+    });
+
     required.forEach(field => {
-      field.classList.remove("sync-invalid");
       let valid = field.checkValidity();
       if ((field.type === "radio" || field.type === "checkbox") && field.name) {
-        valid = !!activeSteps()[currentStep].querySelector(`[name="${CSS.escape(field.name)}"]:checked`);
+        valid = !!activeStep.querySelector(`[name="${CSS.escape(field.name)}"]:checked`);
       }
       if (!valid) {
         field.classList.add("sync-invalid");
+        const choiceWrapper = field.closest(".sync-choice, .sync-check");
+        if (choiceWrapper) choiceWrapper.classList.add("sync-invalid");
+        
+        const fieldset = field.closest("fieldset");
+        if (fieldset) fieldset.classList.add("sync-invalid-fieldset");
+
         firstInvalid ||= field;
       }
     });
-    const activeStep = activeSteps()[currentStep];
+
     const requiredSignatureCanvas = activeStep.querySelector(".sync-signature-canvas");
     if (requiredSignatureCanvas) {
       requiredSignatureCanvas.classList.remove("sync-invalid");
@@ -1656,12 +1696,14 @@
     if (firstInvalid) {
       statusBox.textContent = requiredSignatureCanvas && firstInvalid === requiredSignatureCanvas
         ? "Please sign this document before continuing."
-        : "Please complete the required fields before continuing.";
+        : "Please complete all highlighted required fields before continuing.";
       statusBox.classList.add("is-visible");
       firstInvalid.focus();
       firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
       return false;
     }
+
+    statusBox.classList.remove("is-visible");
     return true;
   }
 
@@ -1681,7 +1723,6 @@
       }
     }
 
-    // Auto-generate or retrieve persistent draft_id for this session
     let draftId = localStorage.getItem('sync_life_draft_id');
     if (!draftId) {
       draftId = 'draft_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
@@ -1754,11 +1795,9 @@
     return data;
   }
 
-  // LocalStorage Draft Functions
   function saveLocalDraft() {
     try {
       const data = payloadFromForm();
-      // Do not persist handwritten signatures or the assembled document packet in browser storage.
       delete data.document_packet;
       [
         "hipaa_signature_data_url", "hipaa_signed_at",
@@ -1845,7 +1884,6 @@
     }
   }
 
-  // Helper for JSON Webhook POST with LeadConnector/GHL Support
   async function postJson(url, payload) {
     const jsonString = JSON.stringify(payload);
     console.log("Sending payload to webhook:", url, payload);
@@ -1879,14 +1917,6 @@
       }
     }
   }
-
-
-  // ============================================================
-  // PDF GENERATION + SAME-WEBHOOK JSON/BASE64 SUBMISSION
-  // ============================================================
-  // The patient stays on this page. pdf-lib creates the PDFs in the
-  // browser, converts them to Base64, and sends the intake + PDFs to the
-  // existing n8n webhook as one application/json request.
 
   function assertPdfLibLoaded() {
     if (!window.PDFLib) {
@@ -1986,7 +2016,7 @@
       page = pdfDoc.addPage([pageWidth, pageHeight]);
       y = pageHeight - margin;
       page.drawText("SYNC LIFE", { x: margin, y, size: 11, font: bold, color: colors.teal });
-      page.drawText("17650 Highland Rd, Ste E | Baton Rouge, LA 70810 | 225.425.7962", {
+      page.drawText("17650 Highland Road Suite E | Baton Rouge, LA 70810 | (225) 425-7962", {
         x: margin, y: y - 15, size: 7.5, font: regular, color: colors.muted
       });
       y -= 34;
@@ -2307,8 +2337,6 @@
   async function buildJsonPayloadWithDocuments(payload, pdfFiles) {
     const safe = JSON.parse(JSON.stringify(payload));
 
-    // The signed PDFs already contain the handwritten signatures. Removing the
-    // canvas data URLs avoids sending the same signature images twice.
     [
       "hipaa_signature_data_url",
       "general_consent_signature_data_url",
@@ -2345,10 +2373,6 @@
   }
 
   async function postJsonStrict(url, payload) {
-    // Send as a CORS "simple request" so the browser does NOT issue an
-    // OPTIONS preflight to n8n. The full JSON payload (including Base64 PDFs)
-    // is carried in the same `payload` form field that the n8n Parse node
-    // already handled when this workflow used multipart/form-data.
     const body = new URLSearchParams();
     body.set("payload", JSON.stringify(payload));
 
@@ -2362,7 +2386,6 @@
       try {
         detail = (await response.text()).trim();
       } catch (_) {
-        // Ignore response-body read failures.
       }
 
       const suffix = detail ? `: ${detail.slice(0, 300)}` : "";
@@ -2497,7 +2520,6 @@
     window.addEventListener("resize", () => requestAnimationFrame(resizeVisibleSignaturePads));
   }
 
-  // Live Telephone Formatter
   form.addEventListener('input', e => {
     if (e.target.type === 'tel') {
       let val = e.target.value.replace(/\D/g, '');
@@ -2511,7 +2533,6 @@
     }
   });
 
-  // Dynamic Listeners for Emergency and Route Dropdowns
   form.addEventListener("change", event => {
     if (event.target.name === "emergency_symptoms" && event.target.value === "none" && event.target.checked) {
       form.querySelectorAll('[name="emergency_symptoms"]:not([value="none"])').forEach(box => box.checked = false);
@@ -2541,7 +2562,6 @@
     saveLocalDraft();
   });
 
-  // NEXT BUTTON: Autosaves locally & advances
   nextBtn.addEventListener("click", () => {
     if (!validateStep()) return;
     saveLocalDraft();
@@ -2579,7 +2599,6 @@
     }
   });
 
-  // SAVE FOR LATER: Webhook POST to LeadConnector + Full-Screen Confirmation Screen
   saveBtn.addEventListener("click", async () => {
     saveLocalDraft();
     const payload = payloadFromForm();
@@ -2593,7 +2612,6 @@
         await postJson(CONFIG.saveDraftEndpoint, payload);
       }
 
-      // Hide form and top indicators
       form.hidden = true;
       
       const progressMeta = document.querySelector(".sync-progress");
@@ -2666,15 +2684,12 @@
     document.getElementById("submitted_at").value = payload.submitted_at;
 
     try {
-      // 1) Generate all four PDFs locally in the patient's browser.
       const pdfFiles = await generateSignedPdfPacket(payload);
 
-      // 2) Convert the generated PDFs to Base64 and attach them to the JSON payload.
       submitBtn.textContent = "PREPARING SIGNED DOCUMENTS...";
       statusBox.textContent = "Preparing your signed documents for secure submission...";
       const webhookPayload = await buildJsonPayloadWithDocuments(payload, pdfFiles);
 
-      // 3) Send one normal JSON request to the SAME n8n webhook.
       submitBtn.textContent = "SUBMITTING TO SYNC LIFE...";
       statusBox.textContent = "Uploading your intake and signed documents securely...";
 
@@ -2682,7 +2697,6 @@
         await postJsonStrict(CONFIG.submitEndpoint, webhookPayload);
       }
 
-      // Clear local draft/session IDs only after n8n returns a successful HTTP response.
       localStorage.removeItem("sync_life_intake_draft");
       localStorage.removeItem("sync_life_draft_id");
 
