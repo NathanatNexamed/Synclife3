@@ -27,8 +27,10 @@
 #sync-rx-app,#sync-rx-app *{box-sizing:border-box}
 #sync-rx-app [hidden]{display:none!important}
 #sync-rx-app .sync-bg{
-  position:absolute;border-radius:999px;
-  pointer-events:none;z-index:-1;
+  position:absolute;
+  border-radius:999px;
+  pointer-events:none;
+  z-index:-1;
 }
 #sync-rx-app .sync-bg-one{
   width:420px;height:420px;right:-220px;top:100px;
@@ -82,31 +84,42 @@
 #sync-rx-app h2,
 #sync-rx-app h3{
   color:var(--midnight);
-  line-height:1.13;margin:0;letter-spacing:-.025em;
+  line-height:1.13;
+  margin:0;
+  letter-spacing:-.025em;
 }
 #sync-rx-app h1{
   margin-bottom:14px;
-  font-size:clamp(34px,5vw,50px);font-weight:800;
+  font-size:clamp(34px,5vw,50px);
+  font-weight:800;
 }
 #sync-rx-app h2{font-size:21px;font-weight:800}
 #sync-rx-app h3{font-size:18px;font-weight:800}
 #sync-rx-app p{margin:0}
 #sync-rx-app .sync-eyebrow{
-  color:var(--midnight);font-size:12px;
-  font-weight:900;letter-spacing:.18em;
+  color:var(--midnight);
+  font-size:12px;font-weight:900;
+  letter-spacing:.18em;
   margin-bottom:14px;
 }
 #sync-rx-app .sync-lead{
-  max-width:720px;font-size:17px;
-  color:#526568;margin-bottom:36px;
+  max-width:720px;
+  font-size:17px;
+  color:#526568;
+  margin-bottom:36px;
 }
 #sync-rx-app .sync-divider{
-  height:1px;margin:34px 0 30px;
+  height:1px;
+  margin:34px 0 30px;
   background:var(--line);
 }
-#sync-rx-app .sync-section-title{margin-bottom:9px}
+#sync-rx-app .sync-section-title{
+  margin-bottom:9px;
+}
 #sync-rx-app .sync-section-intro{
-  color:var(--muted);font-size:13px;margin:0 0 22px;
+  color:var(--muted);
+  font-size:13px;
+  margin:0 0 22px;
 }
 #sync-rx-app .sync-grid{
   display:grid;gap:18px;margin-bottom:20px;
@@ -116,27 +129,40 @@
 }
 #sync-rx-app label,
 #sync-rx-app legend{
-  color:var(--charcoal);font-size:14px;font-weight:750;
+  color:var(--charcoal);
+  font-size:14px;
+  font-weight:750;
 }
 #sync-rx-app .sync-field{
-  display:block;min-width:0;
+  display:block;
+  min-width:0;
 }
-#sync-rx-app .sync-required{color:var(--midnight)}
+#sync-rx-app .sync-required{
+  color:var(--midnight);
+}
 #sync-rx-app input:not([type="checkbox"]):not([type="radio"]),
 #sync-rx-app textarea{
-  display:block;width:100%;margin-top:7px;
-  padding:13px 14px;color:var(--ink);
+  display:block;
+  width:100%;
+  margin-top:7px;
+  padding:13px 14px;
+  color:var(--ink);
   background:var(--white);
   border:1.5px solid #cbdad5;
-  border-radius:10px;outline:none;
-  font:inherit;font-weight:500;
+  border-radius:10px;
+  outline:none;
+  font:inherit;
+  font-weight:500;
   transition:border-color .15s,box-shadow .15s,background-color .15s;
 }
 #sync-rx-app textarea{
-  min-height:92px;resize:vertical;
+  min-height:92px;
+  resize:vertical;
 }
 #sync-rx-app input::placeholder,
-#sync-rx-app textarea::placeholder{color:#879795}
+#sync-rx-app textarea::placeholder{
+  color:#879795;
+}
 #sync-rx-app input:focus,
 #sync-rx-app textarea:focus{
   border-color:var(--midnight)!important;
@@ -150,24 +176,39 @@
   border-radius:16px;
 }
 #sync-rx-app .sync-rx-head{
-  display:flex;align-items:center;
+  display:flex;
+  align-items:center;
   justify-content:space-between;
-  gap:12px;margin-bottom:15px;
+  gap:12px;
+  margin-bottom:15px;
 }
 #sync-rx-app .sync-rx-number{
-  color:var(--midnight);background:#e3f2ea;
-  padding:5px 10px;border-radius:50px;
-  font-size:11px;font-weight:850;
-  letter-spacing:.08em;white-space:nowrap;
+  color:var(--midnight);
+  background:#e3f2ea;
+  padding:5px 10px;
+  border-radius:50px;
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.08em;
+  white-space:nowrap;
 }
 #sync-rx-app .sync-optional{
-  color:var(--muted);font-size:12px;font-weight:600;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
 }
-#sync-rx-app .sync-rx-card .sync-field{margin-bottom:20px}
+#sync-rx-app .sync-rx-card .sync-field{
+  margin-bottom:20px;
+}
 #sync-rx-app fieldset{
-  min-width:0;border:0;padding:0;margin:0;
+  min-width:0;
+  border:0;
+  padding:0;
+  margin:0;
 }
-#sync-rx-app legend{margin-bottom:12px}
+#sync-rx-app legend{
+  margin-bottom:12px;
+}
 #sync-rx-app .sync-choice-row{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -175,68 +216,100 @@
 }
 #sync-rx-app .sync-choice,
 #sync-rx-app .sync-check{
-  display:flex;align-items:flex-start;
-  gap:10px;margin:0;padding:12px 14px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:0;
+  padding:12px 14px;
   border:1.5px solid var(--line);
-  border-radius:10px;background:var(--white);
-  cursor:pointer;font-weight:650;
+  border-radius:10px;
+  background:var(--white);
+  cursor:pointer;
+  font-weight:650;
   transition:border-color .15s,background .15s;
 }
-#sync-rx-app .sync-choice{min-height:68px}
+#sync-rx-app .sync-choice{
+  min-height:68px;
+}
 #sync-rx-app .sync-choice:hover,
 #sync-rx-app .sync-check:hover{
-  border-color:var(--mint);background:#f7fcf9;
+  border-color:var(--mint);
+  background:#f7fcf9;
 }
 #sync-rx-app .sync-choice:has(input:checked),
 #sync-rx-app .sync-check:has(input:checked){
-  border-color:var(--midnight);background:#ecf8f2;
+  border-color:var(--midnight);
+  background:#ecf8f2;
 }
 #sync-rx-app .sync-choice input,
 #sync-rx-app .sync-check input{
-  width:16px;height:16px;margin:3px 0 0;
-  accent-color:var(--midnight);flex:0 0 auto;
+  width:16px;
+  height:16px;
+  margin:3px 0 0;
+  accent-color:var(--midnight);
+  flex:0 0 auto;
 }
 #sync-rx-app .sync-choice span{
-  font-size:13px;line-height:1.48;
+  font-size:13px;
+  line-height:1.48;
 }
 #sync-rx-app .sync-consent{
   padding:18px 20px;
-  background:var(--mist);border-radius:14px;
+  background:var(--mist);
+  border-radius:14px;
 }
-#sync-rx-app .sync-consent .sync-check{padding:15px}
+#sync-rx-app .sync-consent .sync-check{
+  padding:15px;
+}
 #sync-rx-app .sync-consent span{
-  font-size:13px;line-height:1.6;
+  font-size:13px;
+  line-height:1.6;
 }
 #sync-rx-app .sync-actions{
-  display:flex;flex-direction:column;
-  align-items:center;gap:12px;
-  margin-top:26px;padding-top:26px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  margin-top:26px;
+  padding-top:26px;
   border-top:1px solid var(--line);
 }
 #sync-rx-app .sync-btn{
-  min-height:52px;min-width:260px;
+  min-height:52px;
+  min-width:260px;
   padding:13px 32px;
   border:1.5px solid var(--midnight);
-  border-radius:10px;color:#fff;
-  background:var(--midnight);font:inherit;
-  font-size:13px;font-weight:900;
-  letter-spacing:.08em;cursor:pointer;
+  border-radius:10px;
+  color:#fff;
+  background:var(--midnight);
+  font:inherit;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.08em;
+  cursor:pointer;
   transition:transform .15s,box-shadow .15s,background .15s;
 }
 #sync-rx-app .sync-btn:hover:not(:disabled){
-  background:#0d4045;transform:translateY(-1px);
+  background:#0d4045;
+  transform:translateY(-1px);
   box-shadow:0 8px 18px rgba(15,79,85,.16);
 }
 #sync-rx-app .sync-btn:disabled{
-  opacity:.6;cursor:wait;
+  opacity:.6;
+  cursor:wait;
 }
 #sync-rx-app .sync-footer-note{
-  color:var(--muted);font-size:12px;text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
 }
 #sync-rx-app .sync-status{
-  width:100%;margin:10px 0 0;
-  padding:14px 18px;font-size:14px;
-  font-weight:700;border-radius:12px;
+  width:100%;
+  margin:10px 0 0;
+  padding:14px 18px;
+  font-size:14px;
+  font-weight:700;
+  border-radius:12px;
 }
 #sync-rx-app .sync-status.is-error{
   color:var(--danger);
@@ -249,45 +322,75 @@
   box-shadow:0 0 0 3px rgba(217,56,56,.15)!important;
 }
 #sync-rx-app .sync-invalid-options{
-  padding:10px;border-radius:10px;
+  padding:10px;
+  border-radius:10px;
   outline:1.5px solid #d93838;
 }
 #sync-rx-app .sync-confirmation{
-  padding:28px 0 36px;text-align:center;
+  padding:28px 0 36px;
+  text-align:center;
 }
 #sync-rx-app .sync-confirmation-mark{
-  display:grid;place-items:center;
-  width:68px;height:68px;
-  margin:0 auto 20px;border-radius:50%;
+  display:grid;
+  place-items:center;
+  width:68px;
+  height:68px;
+  margin:0 auto 20px;
+  border-radius:50%;
   color:var(--midnight);
-  background:#e3f4eb;font-size:35px;font-weight:700;
+  background:#e3f4eb;
+  font-size:35px;
+  font-weight:700;
 }
 #sync-rx-app .sync-confirmation h2{
-  font-size:30px;margin-bottom:14px;
+  font-size:30px;
+  margin-bottom:14px;
 }
 #sync-rx-app .sync-confirmation p{
-  max-width:570px;margin:0 auto;color:#526568;
+  max-width:570px;
+  margin:0 auto;
+  color:#526568;
 }
 @media(max-width:620px){
-  #sync-rx-app{padding-bottom:24px}
-  #sync-rx-app .sync-header{padding:20px 18px 14px}
-  #sync-rx-app .sync-header-meta{display:none}
-  #sync-rx-app .sync-brand-symbol{width:31px;height:47px}
-  #sync-rx-app .sync-wordmark strong{font-size:25px}
-  #sync-rx-app .sync-shell{
-    width:calc(100% - 16px);border-radius:16px;
+  #sync-rx-app{
+    padding-bottom:24px;
   }
-  #sync-rx-app .sync-content{padding:32px 18px 27px}
+  #sync-rx-app .sync-header{
+    padding:20px 18px 14px;
+  }
+  #sync-rx-app .sync-header-meta{
+    display:none;
+  }
+  #sync-rx-app .sync-brand-symbol{
+    width:31px;height:47px;
+  }
+  #sync-rx-app .sync-wordmark strong{
+    font-size:25px;
+  }
+  #sync-rx-app .sync-shell{
+    width:calc(100% - 16px);
+    border-radius:16px;
+  }
+  #sync-rx-app .sync-content{
+    padding:32px 18px 27px;
+  }
   #sync-rx-app .sync-grid-2,
   #sync-rx-app .sync-choice-row{
     grid-template-columns:1fr;
   }
-  #sync-rx-app .sync-grid{gap:16px}
-  #sync-rx-app .sync-rx-card{padding:18px}
-  #sync-rx-app .sync-lead{
-    font-size:15px;margin-bottom:27px;
+  #sync-rx-app .sync-grid{
+    gap:16px;
   }
-  #sync-rx-app .sync-btn{width:100%}
+  #sync-rx-app .sync-rx-card{
+    padding:18px;
+  }
+  #sync-rx-app .sync-lead{
+    font-size:15px;
+    margin-bottom:27px;
+  }
+  #sync-rx-app .sync-btn{
+    width:100%;
+  }
 }
 </style>
 
@@ -308,7 +411,8 @@
               stroke-linecap="round"/>
       </svg>
       <span class="sync-wordmark">
-        <strong>SYNC</strong><small>LIFE</small>
+        <strong>SYNC</strong>
+        <small>LIFE</small>
       </span>
     </div>
     <span class="sync-header-meta">Patient Services</span>
@@ -334,41 +438,66 @@
             with your patient profile.
           </p>
 
+          <!-- FIRST AND LAST NAME -->
           <div class="sync-grid sync-grid-2">
             <label class="sync-field" for="sync-first">
               First name <span class="sync-required">*</span>
-              <input id="sync-first" name="first" type="text"
-                     placeholder="First name"
-                     autocomplete="given-name" required>
+              <input
+                id="sync-first"
+                name="first"
+                type="text"
+                placeholder="First name"
+                autocomplete="given-name"
+                required>
             </label>
+
             <label class="sync-field" for="sync-last">
               Last name <span class="sync-required">*</span>
-              <input id="sync-last" name="last" type="text"
-                     placeholder="Last name"
-                     autocomplete="family-name" required>
+              <input
+                id="sync-last"
+                name="last"
+                type="text"
+                placeholder="Last name"
+                autocomplete="family-name"
+                required>
             </label>
           </div>
 
+          <!-- PHONE AND EMAIL -->
           <div class="sync-grid sync-grid-2">
             <label class="sync-field" for="sync-phone">
               Phone <span class="sync-required">*</span>
-              <input id="sync-phone" name="phone" type="tel"
-                     placeholder="(555) 000-0000"
-                     autocomplete="tel" required>
+              <input
+                id="sync-phone"
+                name="phone"
+                type="tel"
+                placeholder="(555) 000-0000"
+                autocomplete="tel"
+                required>
             </label>
+
             <label class="sync-field" for="sync-email">
               Email <span class="sync-required">*</span>
-              <input id="sync-email" name="email" type="email"
-                     placeholder="you@example.com"
-                     autocomplete="email" required>
+              <input
+                id="sync-email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required>
             </label>
           </div>
 
+          <!-- DATE OF BIRTH -->
           <div class="sync-grid sync-grid-2">
             <label class="sync-field" for="sync-dob">
               Date of birth <span class="sync-required">*</span>
-              <input id="sync-dob" name="date_of_birth"
-                     type="date" autocomplete="bday" required>
+              <input
+                id="sync-dob"
+                name="date_of_birth"
+                type="date"
+                autocomplete="bday"
+                required>
             </label>
           </div>
 
@@ -383,32 +512,48 @@
           <!-- PRESCRIPTION 1 -->
           <section class="sync-rx-card">
             <div class="sync-rx-head">
-              <h3>Prescription #1 <span class="sync-required">*</span></h3>
+              <h3>
+                Prescription #1
+                <span class="sync-required">*</span>
+              </h3>
               <span class="sync-rx-number">01 / 03</span>
             </div>
 
             <label class="sync-field" for="sync-rx-1">
               Prescription name or details
-              <textarea id="sync-rx-1" name="prescription_1"
-                        placeholder="Enter the prescription you'd like refilled"
-                        required></textarea>
+              <textarea
+                id="sync-rx-1"
+                name="prescription_1"
+                placeholder="Enter the prescription you'd like refilled"
+                required></textarea>
             </label>
 
             <fieldset data-rx-choice="1">
-              <legend>Please choose one
+              <legend>
+                Please choose one
                 <span class="sync-required">*</span>
               </legend>
+
               <div class="sync-choice-row">
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_1_choice"
-                         value="pickup">
-                  <span>I will pick up my prescription at SYNC
-                    or my local pharmacy.</span>
+                  <input
+                    type="radio"
+                    name="prescription_1_choice"
+                    value="pickup">
+                  <span>
+                    I will pick up my prescription at SYNC
+                    or my local pharmacy.
+                  </span>
                 </label>
+
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_1_choice"
-                         value="shipping">
-                  <span>Ship my prescription to the address below.</span>
+                  <input
+                    type="radio"
+                    name="prescription_1_choice"
+                    value="shipping">
+                  <span>
+                    Ship my prescription to the address below.
+                  </span>
                 </label>
               </div>
             </fieldset>
@@ -423,23 +568,35 @@
 
             <label class="sync-field" for="sync-rx-2">
               Prescription name or details
-              <textarea id="sync-rx-2" name="prescription_2"
-                        placeholder="Enter another prescription, if needed"></textarea>
+              <textarea
+                id="sync-rx-2"
+                name="prescription_2"
+                placeholder="Enter another prescription, if needed"></textarea>
             </label>
 
             <fieldset data-rx-choice="2">
               <legend>Please choose one</legend>
+
               <div class="sync-choice-row">
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_2_choice"
-                         value="pickup">
-                  <span>I will pick up my prescription at SYNC
-                    or my local pharmacy.</span>
+                  <input
+                    type="radio"
+                    name="prescription_2_choice"
+                    value="pickup">
+                  <span>
+                    I will pick up my prescription at SYNC
+                    or my local pharmacy.
+                  </span>
                 </label>
+
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_2_choice"
-                         value="shipping">
-                  <span>Ship my prescription to the address below.</span>
+                  <input
+                    type="radio"
+                    name="prescription_2_choice"
+                    value="shipping">
+                  <span>
+                    Ship my prescription to the address below.
+                  </span>
                 </label>
               </div>
             </fieldset>
@@ -454,28 +611,61 @@
 
             <label class="sync-field" for="sync-rx-3">
               Prescription name or details
-              <textarea id="sync-rx-3" name="prescription_3"
-                        placeholder="Enter another prescription, if needed"></textarea>
+              <textarea
+                id="sync-rx-3"
+                name="prescription_3"
+                placeholder="Enter another prescription, if needed"></textarea>
             </label>
 
             <fieldset data-rx-choice="3">
               <legend>Please choose one</legend>
+
               <div class="sync-choice-row">
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_3_choice"
-                         value="pickup">
-                  <span>I will pick up my prescription at SYNC
-                    or my local pharmacy.</span>
+                  <input
+                    type="radio"
+                    name="prescription_3_choice"
+                    value="pickup">
+                  <span>
+                    I will pick up my prescription at SYNC
+                    or my local pharmacy.
+                  </span>
                 </label>
+
                 <label class="sync-choice">
-                  <input type="radio" name="prescription_3_choice"
-                         value="shipping">
-                  <span>Ship my prescription to the address below.</span>
+                  <input
+                    type="radio"
+                    name="prescription_3_choice"
+                    value="shipping">
+                  <span>
+                    Ship my prescription to the address below.
+                  </span>
                 </label>
               </div>
             </fieldset>
           </section>
 
+          <!-- NEW: PREFERRED PHARMACY -->
+          <div class="sync-divider"></div>
+
+          <h2 class="sync-section-title">Preferred pharmacy</h2>
+          <p class="sync-section-intro">
+            Enter the name of your preferred pharmacy.
+          </p>
+
+          <div class="sync-grid">
+            <label class="sync-field" for="sync-pharmacy">
+              Preferred pharmacy name
+              <input
+                id="sync-pharmacy"
+                name="preferred_pharmacy"
+                type="text"
+                placeholder="Enter your preferred pharmacy name"
+                autocomplete="off">
+            </label>
+          </div>
+
+          <!-- SHIPPING ADDRESS -->
           <div class="sync-divider"></div>
 
           <h2 class="sync-section-title">Shipping address</h2>
@@ -487,49 +677,66 @@
           <div class="sync-grid">
             <label class="sync-field" for="sync-address">
               Street address
-              <input id="sync-address" name="address" type="text"
-                     placeholder="Street address"
-                     autocomplete="street-address">
+              <input
+                id="sync-address"
+                name="address"
+                type="text"
+                placeholder="Street address"
+                autocomplete="street-address">
             </label>
           </div>
 
           <div class="sync-grid sync-grid-2">
             <label class="sync-field" for="sync-city">
               City
-              <input id="sync-city" name="city" type="text"
-                     placeholder="City"
-                     autocomplete="address-level2">
+              <input
+                id="sync-city"
+                name="city"
+                type="text"
+                placeholder="City"
+                autocomplete="address-level2">
             </label>
+
             <label class="sync-field" for="sync-state">
               State
-              <input id="sync-state" name="state" type="text"
-                     placeholder="State"
-                     autocomplete="address-level1">
+              <input
+                id="sync-state"
+                name="state"
+                type="text"
+                placeholder="State"
+                autocomplete="address-level1">
             </label>
           </div>
 
           <div class="sync-grid sync-grid-2">
             <label class="sync-field" for="sync-postal">
               Postal code
-              <input id="sync-postal" name="postal_code" type="text"
-                     placeholder="ZIP or postal code"
-                     autocomplete="postal-code">
+              <input
+                id="sync-postal"
+                name="postal_code"
+                type="text"
+                placeholder="ZIP or postal code"
+                autocomplete="postal-code">
             </label>
           </div>
 
+          <!-- TERMS AND CONDITIONS -->
           <div class="sync-divider"></div>
 
           <div class="sync-consent">
             <label class="sync-check" for="sync-terms">
-              <input id="sync-terms"
-                     name="terms_and_conditions"
-                     type="checkbox"
-                     value="accepted"
-                     required>
+              <input
+                id="sync-terms"
+                name="terms_and_conditions"
+                type="checkbox"
+                value="accepted"
+                required>
+
               <span>
                 I have verified that all previous refill selections
                 have been cleared and that only the medications
                 I am currently requesting are selected.
+
                 I understand that SYNC is not responsible for
                 charges incurred as a result of incorrect or
                 unintended refill requests submitted on this form.
@@ -537,32 +744,49 @@
             </label>
           </div>
 
+          <!-- SUBMIT -->
           <div class="sync-actions">
-            <button class="sync-btn" id="sync-rx-submit"
-                    type="submit">
+            <button
+              class="sync-btn"
+              id="sync-rx-submit"
+              type="submit">
               SUBMIT REFILL REQUEST
             </button>
+
             <p class="sync-footer-note">
               Submitting a request does not guarantee
               a prescription refill.
             </p>
-            <div class="sync-status" id="sync-rx-status"
-                 role="alert" aria-live="polite" hidden></div>
+
+            <div
+              class="sync-status"
+              id="sync-rx-status"
+              role="alert"
+              aria-live="polite"
+              hidden></div>
           </div>
+
         </form>
       </div>
 
-      <section class="sync-confirmation"
-               id="sync-rx-confirmation"
-               role="status" hidden>
-        <div class="sync-confirmation-mark"
-             aria-hidden="true">✓</div>
+      <!-- SUCCESS MESSAGE -->
+      <section
+        class="sync-confirmation"
+        id="sync-rx-confirmation"
+        role="status"
+        hidden>
+
+        <div
+          class="sync-confirmation-mark"
+          aria-hidden="true">✓</div>
+
         <h2>Request received</h2>
         <p>
           Thank you. Your prescription refill request
           has been submitted. Our team will contact you
           if we need any additional information.
         </p>
+
       </section>
     </div>
   </main>
@@ -570,12 +794,15 @@
 
 <script>
 (function(){
+
   const root=document.getElementById('sync-rx-app');
+
   if(!root||root.dataset.initialized==='true')return;
   root.dataset.initialized='true';
 
-  // LEADCONNECTOR WEBHOOK
-  const SUBMISSION_ENDPOINT='https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/da558d64-5735-4228-abd1-6f6e9e4d1d7c';
+  // EXISTING LEADCONNECTOR WEBHOOK
+  const SUBMISSION_ENDPOINT=
+    'https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/da558d64-5735-4228-abd1-6f6e9e4d1d7c';
 
   const form=root.querySelector('#sync-rx-form');
   const status=root.querySelector('#sync-rx-status');
@@ -586,6 +813,7 @@
   const localDate=new Date(
     today.getTime()-today.getTimezoneOffset()*60000
   ).toISOString().slice(0,10);
+
   dob.max=localDate;
 
   function message(text){
@@ -596,10 +824,12 @@
 
   function clearErrors(){
     status.hidden=true;
+
     root.querySelectorAll('.sync-invalid').forEach(el=>{
       el.classList.remove('sync-invalid');
       el.removeAttribute('aria-invalid');
     });
+
     root.querySelectorAll('.sync-invalid-options').forEach(el=>{
       el.classList.remove('sync-invalid-options');
     });
@@ -607,40 +837,57 @@
 
   function validate(){
     clearErrors();
+
     let firstInvalid=null;
 
     const invalid=el=>{
       el.classList.add('sync-invalid');
       el.setAttribute('aria-invalid','true');
+
       if(!firstInvalid)firstInvalid=el;
     };
 
+    // REQUIRED PATIENT FIELDS
     [
-      'first','last','phone','email',
-      'date_of_birth','prescription_1'
+      'first',
+      'last',
+      'phone',
+      'email',
+      'date_of_birth',
+      'prescription_1'
     ].forEach(name=>{
       const field=form.elements[name];
+
       if(!field.value.trim()||!field.checkValidity()){
         invalid(field);
       }
     });
 
+    // VALIDATE PRESCRIPTIONS
     let anyShipping=false;
 
     for(let n=1;n<=3;n++){
+
       const rx=form.elements['prescription_'+n];
+
       const selected=form.querySelector(
         'input[name="prescription_'+n+'_choice"]:checked'
       );
+
       const optionGroup=root.querySelector(
         '[data-rx-choice="'+n+'"]'
       );
+
       const hasRx=rx.value.trim().length>0;
 
-      if(n>1&&selected&&!hasRx)invalid(rx);
+      if(n>1&&selected&&!hasRx){
+        invalid(rx);
+      }
 
       if(hasRx&&!selected){
+
         optionGroup.classList.add('sync-invalid-options');
+
         if(!firstInvalid){
           firstInvalid=optionGroup.querySelector(
             'input[type="radio"]'
@@ -653,26 +900,45 @@
       }
     }
 
-    ['address','city','state','postal_code'].forEach(name=>{
+    // SHIPPING ADDRESS REQUIRED ONLY FOR SHIPPING
+    [
+      'address',
+      'city',
+      'state',
+      'postal_code'
+    ].forEach(name=>{
       const field=form.elements[name];
-      if(anyShipping&&!field.value.trim())invalid(field);
+
+      if(anyShipping&&!field.value.trim()){
+        invalid(field);
+      }
     });
 
+    // TERMS AND CONDITIONS
     if(!form.elements.terms_and_conditions.checked){
+
       invalid(form.elements.terms_and_conditions);
+
       form.elements.terms_and_conditions
         .closest('.sync-check')
         .classList.add('sync-invalid-options');
     }
 
     if(firstInvalid){
+
       message(
         'Please complete the highlighted fields and select a pickup or shipping option for each prescription entered.'
       );
+
       firstInvalid.scrollIntoView({
-        behavior:'smooth',block:'center'
+        behavior:'smooth',
+        block:'center'
       });
-      firstInvalid.focus({preventScroll:true});
+
+      firstInvalid.focus({
+        preventScroll:true
+      });
+
       return false;
     }
 
@@ -687,8 +953,11 @@
     if(!status.hidden)clearErrors();
   });
 
+  // SUBMIT FORM TO LEADCONNECTOR
   form.addEventListener('submit',async function(event){
+
     event.preventDefault();
+
     if(!validate())return;
 
     if(!SUBMISSION_ENDPOINT){
@@ -702,13 +971,25 @@
     button.textContent='SUBMITTING...';
 
     try{
+
+      // COLLECT ALL FORM FIELDS
       const payload=Object.fromEntries(
         new FormData(form).entries()
       );
 
+      // NEW: AUTOMATIC SUBMISSION TIMESTAMP
+      // UTC ISO 8601 format, e.g. 2026-10-13T18:46:00.000Z
+      payload.submitted_at=new Date().toISOString();
+
+      // NEW FIELD IS INCLUDED AUTOMATICALLY:
+      // payload.preferred_pharmacy
+
+      // SEND JSON TO LEADCONNECTOR
       const response=await fetch(SUBMISSION_ENDPOINT,{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+          'Content-Type':'application/json'
+        },
         body:JSON.stringify(payload),
         credentials:'omit'
       });
@@ -717,20 +998,30 @@
         throw new Error('Submission failed');
       }
 
+      // SHOW SUCCESS CONFIRMATION
       root.querySelector('#sync-rx-form-view').hidden=true;
+
       root.querySelector('#sync-rx-confirmation').hidden=false;
+
       root.querySelector('#sync-rx-confirmation').scrollIntoView({
-        behavior:'smooth',block:'start'
+        behavior:'smooth',
+        block:'start'
       });
 
     }catch(error){
+
       message(
         'We could not submit your request. Please try again or contact SYNC directly.'
       );
+
     }finally{
+
       button.disabled=false;
       button.textContent='SUBMIT REFILL REQUEST';
+
     }
+
   });
+
 })();
 </script>
