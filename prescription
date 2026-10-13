@@ -574,9 +574,8 @@
   if(!root||root.dataset.initialized==='true')return;
   root.dataset.initialized='true';
 
-  // REPLACE WITH YOUR APPROVED HTTPS N8N WEBHOOK URL
-  // Ensure your endpoint is authorized to receive patient data.
-  const SUBMISSION_ENDPOINT='';
+  // LEADCONNECTOR WEBHOOK
+  const SUBMISSION_ENDPOINT='https://services.leadconnectorhq.com/hooks/z85Y4tKRPRddv16dW0Gr/webhook-trigger/da558d64-5735-4228-abd1-6f6e9e4d1d7c';
 
   const form=root.querySelector('#sync-rx-form');
   const status=root.querySelector('#sync-rx-status');
