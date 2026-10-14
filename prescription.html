@@ -89,31 +89,14 @@ body {
   gap: 12px;
 }
 
-#sync-rx-app .sync-brand-symbol {
-  width: 39px;
-  height: 57px;
-}
-
-#sync-rx-app .sync-wordmark {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-
-#sync-rx-app .sync-wordmark strong {
-  color: var(--midnight);
-  font-size: 32px;
-  font-weight: 850;
-  letter-spacing: .20em;
-}
-
-#sync-rx-app .sync-wordmark small {
-  color: var(--mint);
-  font-size: 11px;
-  font-weight: 850;
-  text-align: center;
-  letter-spacing: .38em;
-  padding-top: 5px;
+#sync-rx-app .sync-brand-logo {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 220px;
+  max-height: 65px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 #sync-rx-app .sync-header-meta {
@@ -466,6 +449,10 @@ body {
   #sync-rx-app .sync-header-meta {
     display: none;
   }
+  #sync-rx-app .sync-brand-logo {
+    max-width: 185px;
+    max-height: 56px;
+  }
   #sync-rx-app .sync-shell {
     width: calc(100% - 16px);
     border-radius: 16px;
@@ -496,30 +483,13 @@ body {
 
   <header class="sync-header">
     <div class="sync-brand">
-      <svg class="sync-brand-symbol"
-           viewBox="0 0 40 58"
-           fill="none"
-           aria-hidden="true">
-        <rect x="14" y="2"
-              width="23" height="43"
-              rx="11.5"
-              stroke="#76c7a0"
-              stroke-width="3"/>
-        <rect x="3" y="13"
-              width="23" height="43"
-              rx="11.5"
-              stroke="#76c7a0"
-              stroke-width="3"/>
-        <path d="M25.5 14v19M14.5 25v19"
-              stroke="#76c7a0"
-              stroke-width="3"
-              stroke-linecap="round"/>
-      </svg>
-
-      <span class="sync-wordmark">
-        <strong>SYNC</strong>
-        <small>LIFE</small>
-      </span>
+      <img
+        class="sync-brand-logo"
+        src="https://assets.cdn.filesafe.space/z85Y4tKRPRddv16dW0Gr/media/6abfdb7cf30b488137b57936.svg"
+        alt="SYNC Life"
+        loading="eager"
+        decoding="async"
+      >
     </div>
 
     <span class="sync-header-meta">Patient Services</span>
@@ -968,9 +938,8 @@ body {
 
     let anyShipping = false;
 
-    // Each prescription needs its own pickup/shipping choice.
+    // Each prescription needs its own pickup/shipping choice
     for (let n = 1; n <= 3; n++) {
-
       const rx = form.elements['prescription_' + n];
 
       const choice = form.querySelector(
@@ -1002,7 +971,7 @@ body {
       }
     }
 
-    // Address required when shipping
+    // Shipping address required only for shipping
     if (anyShipping) {
       [
         'address',
@@ -1011,7 +980,10 @@ body {
         'postal_code'
       ].forEach(name => {
         const field = form.elements[name];
-        if (!field.value.trim()) invalid(field);
+
+        if (!field.value.trim()) {
+          invalid(field);
+        }
       });
     }
 
@@ -1054,7 +1026,6 @@ body {
 
   // SEND FORM DATA
   form.addEventListener('submit', async function(event) {
-
     event.preventDefault();
 
     if (!validateForm()) return;
@@ -1063,19 +1034,17 @@ body {
     button.textContent = 'SUBMITTING...';
 
     try {
-
       const formData = new FormData(form);
 
       function getValue(name) {
         return String(formData.get(name) ?? '').trim();
       }
 
-      // Individual pickup/shipping values
       const choice1 = getValue('prescription_1_choice');
       const choice2 = getValue('prescription_2_choice');
       const choice3 = getValue('prescription_3_choice');
 
-      // Make a combined human-readable summary
+      // Combined pickup/shipping summary
       const fulfillment = [];
 
       if (getValue('prescription_1')) {
@@ -1100,9 +1069,7 @@ body {
       }
 
       // COMPLETE WEBHOOK PAYLOAD
-      // Every field is explicitly included.
       const payload = {
-
         first: getValue('first'),
         last: getValue('last'),
         phone: getValue('phone'),
@@ -1118,34 +1085,25 @@ body {
         prescription_3: getValue('prescription_3'),
         prescription_3_choice: choice3,
 
-        // All pickup/shipping decisions in one field
         pickup_or_ship: fulfillment.join('; '),
-
-        // Original question's field key
         please_choose_one: fulfillment.join('; '),
 
-        // Preferred pharmacy
         preferred_pharmacy: getValue('preferred_pharmacy'),
 
-        // Staff notes
         requested_changes_to_rx_or_staff_notes:
           getValue('requested_changes_to_rx_or_staff_notes'),
 
-        // Address
         address: getValue('address'),
         city: getValue('city'),
         state: getValue('state'),
         postal_code: getValue('postal_code'),
 
-        // Consent
         terms_and_conditions:
           form.elements.terms_and_conditions.checked
             ? 'accepted'
             : 'not_accepted',
 
-        // Exact submission time in UTC
         submitted_at: new Date().toISOString()
-
       };
 
       // POST TO LEADCONNECTOR
@@ -1172,18 +1130,14 @@ body {
       });
 
     } catch (error) {
-
       showError(
         'We could not submit your request. Please try again or contact SYNC directly.'
       );
 
     } finally {
-
       button.disabled = false;
       button.textContent = 'SUBMIT REFILL REQUEST';
-
     }
-
   });
 
 })();
